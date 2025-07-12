@@ -1,6 +1,6 @@
 package io.github.xcvqqz.currencyexchange.service;
 
-import io.github.xcvqqz.currencyexchange.Currencies;
+import io.github.xcvqqz.currencyexchange.Currency;
 import io.github.xcvqqz.currencyexchange.dao.CurrencyDao;
 
 import java.util.List;
@@ -13,7 +13,7 @@ public class CurrencyService {
         this.currencyDao = currencyDao;
     }
 
-    public List<Currencies> getCurrencies() throws ClassNotFoundException {
+    public List<Currency> getCurrencies() throws ClassNotFoundException {
         return currencyDao.getCurrencies();
     }
 
