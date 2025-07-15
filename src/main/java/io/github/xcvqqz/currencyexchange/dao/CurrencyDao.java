@@ -8,7 +8,7 @@ import java.util.List;
 
 public class CurrencyDao {
 
-    private static final String DB_URL = "jdbc:sqlite:C:\\Users\\Ваня\\Desktop\\Java\\Проекты\\3 проект\\CurrencyExchange\\DataBase\\exchange.db";
+    private static final String DB_URL = "jdbc:sqlite:C:\\Users\\Максим\\Desktop\\Java\\3 проект\\CurrencyExchange\\DataBase\\currency_exchange.db";
     private static final String JDBC_LOAD = "org.sqlite.JDBC";
 
 
@@ -39,7 +39,7 @@ public class CurrencyDao {
     public Currency getCurrencyByCode(String code) throws ClassNotFoundException, SQLException {
 
         Class.forName(JDBC_LOAD);
-        Currency currency = null;
+        Currency currency;
 
         try (Connection connection = DriverManager.getConnection(DB_URL);
              Statement stmt = connection.createStatement();
@@ -70,6 +70,19 @@ public class CurrencyDao {
             stmt.setString(2, currency.getFullName());
             stmt.setString(3, currency.getSign());
             stmt.setInt(4, currency.getId());
+            return stmt.executeUpdate() > 0;
+        }
+    }
+
+    public boolean createCurrency(Currency currency) throws ClassNotFoundException, SQLException {
+
+        String  sql = "INSERT INTO currencies (code, fullName, sign) VALUES (?, ?, ?)";
+        Class.forName(JDBC_LOAD);
+        try (Connection connection = DriverManager.getConnection(DB_URL);
+        PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, currency.getCode());
+            stmt.setString(2, currency.getFullName());
+            stmt.setString(3, currency.getSign());
             return stmt.executeUpdate() > 0;
         }
     }

@@ -5,10 +5,18 @@
          version="6.0">
     <servlet>
         <servlet-name>GetCurrenciesServlet</servlet-name>
-        <servlet-class>io.github.xcvqqz.currencyexchange.GetCurrenciesServlet</servlet-class>
+        <servlet-class>io.github.xcvqqz.currencyexchange.controller.GetAllCurrenciesServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>GetCurrenciesServlet</servlet-name>
         <url-pattern>/get-currencies</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>GetCurrencyByCodeServlet</servlet-name>
+        <servlet-class>io.github.xcvqqz.currencyexchange.controller.GetCurrencyByCodeServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>GetCurrencyByCodeServlet</servlet-name>
+        <url-pattern>/get-currency-by-code</url-pattern>
     </servlet-mapping>
 </web-app>
