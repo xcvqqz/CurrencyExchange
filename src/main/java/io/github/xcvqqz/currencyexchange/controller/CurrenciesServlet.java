@@ -3,14 +3,14 @@ package io.github.xcvqqz.currencyexchange.controller;
 import java.io.*;
 import java.util.List;
 
-import io.github.xcvqqz.currencyexchange.Currency;
+import io.github.xcvqqz.currencyexchange.entity.Currency;
 import io.github.xcvqqz.currencyexchange.dao.CurrencyDao;
 import io.github.xcvqqz.currencyexchange.service.CurrencyService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.*;
 
 
-public class GetAllCurrenciesServlet extends HttpServlet {
+public class CurrenciesServlet extends HttpServlet {
 
 
     private final CurrencyService currencyService = new CurrencyService(new CurrencyDao());

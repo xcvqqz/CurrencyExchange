@@ -1,6 +1,6 @@
 package io.github.xcvqqz.currencyexchange.service;
 
-import io.github.xcvqqz.currencyexchange.Currency;
+import io.github.xcvqqz.currencyexchange.entity.Currency;
 import io.github.xcvqqz.currencyexchange.dao.CurrencyDao;
 
 import java.sql.SQLException;
@@ -18,8 +18,8 @@ public class CurrencyService {
         return currencyDao.getAllCurrencies();
     }
 
-    public Currency getCurrencyByCode(String code) throws SQLException, ClassNotFoundException {
-        return currencyDao.getCurrencyByCode(code);
+    public Currency findByCode(String code) throws SQLException, ClassNotFoundException {
+        return currencyDao.findByCode(code);
     }
 
     public boolean updateCurrency(Currency currency) throws SQLException, ClassNotFoundException {

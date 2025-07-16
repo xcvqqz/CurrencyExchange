@@ -1,4 +1,4 @@
-package io.github.xcvqqz.currencyexchange;
+package io.github.xcvqqz.currencyexchange.entity;
 
 public class Currency {
 

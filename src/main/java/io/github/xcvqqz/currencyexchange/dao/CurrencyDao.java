@@ -1,6 +1,6 @@
 package io.github.xcvqqz.currencyexchange.dao;
 
-import io.github.xcvqqz.currencyexchange.Currency;
+import io.github.xcvqqz.currencyexchange.entity.Currency;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -36,23 +36,25 @@ public class CurrencyDao {
     }
 
 
-    public Currency getCurrencyByCode(String code) throws ClassNotFoundException, SQLException {
+    public Currency findByCode(String code) throws ClassNotFoundException, SQLException {
 
         Class.forName(JDBC_LOAD);
         Currency currency;
 
         try (Connection connection = DriverManager.getConnection(DB_URL);
-             Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT * FROM currencies WHERE code = ?")) {
+             PreparedStatement stmt = connection.prepareStatement("SELECT * FROM currencies WHERE code = ?");){
+            stmt.setString(1, code);
+            try (ResultSet rs = stmt.executeQuery()) {
 
-            if (rs.next()) {
-                currency = new Currency(
-                        rs.getInt("id"),
-                        rs.getString("code"),
-                        rs.getString("fullName"),
-                        rs.getString("sign"));
-            } else {
-                throw new IllegalArgumentException("Currency not found: " + code);
+                if (rs.next()) {
+                    currency = new Currency(
+                            rs.getInt("id"),
+                            rs.getString("code"),
+                            rs.getString("fullName"),
+                            rs.getString("sign"));
+                } else {
+                    throw new IllegalArgumentException("Currency not found: " + code);
+                }
             }
         }
         return currency;
