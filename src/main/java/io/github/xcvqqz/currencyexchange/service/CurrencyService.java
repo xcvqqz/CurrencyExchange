@@ -22,12 +22,12 @@ public class CurrencyService {
         return currencyDao.findByCode(code);
     }
 
-    public boolean updateCurrency(Currency currency) throws SQLException, ClassNotFoundException {
+    public Currency updateCurrency(Currency currency) throws SQLException, ClassNotFoundException {
         return currencyDao.updateCurrency(currency);
     }
 
-    public boolean createCurrency(Currency currency) throws SQLException, ClassNotFoundException {
-        return currencyDao.createCurrency(currency);
+    public Currency createCurrency(String code, String fullName, String sign) throws SQLException, ClassNotFoundException {
+        return currencyDao.createCurrency(code, fullName, sign);
     }
 
 }

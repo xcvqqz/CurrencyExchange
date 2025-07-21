@@ -61,10 +61,11 @@ public class CurrencyDao {
     }
 
 
-    public boolean updateCurrency(Currency currency) throws ClassNotFoundException, SQLException {
+    public Currency updateCurrency(Currency currency) throws ClassNotFoundException, SQLException {
 
-        String sql = "UPDATE currencies SET code = ?, fullName = ?, sign = ?, id = ?";
+        String sql = "UPDATE currencies SET code = ?, fullName = ?, sign = ? WHERE id = ?";
         Class.forName(JDBC_LOAD);
+
 
         try (Connection connection = DriverManager.getConnection(DB_URL);
              PreparedStatement stmt = connection.prepareStatement(sql)) {
@@ -72,21 +73,23 @@ public class CurrencyDao {
             stmt.setString(2, currency.getFullName());
             stmt.setString(3, currency.getSign());
             stmt.setInt(4, currency.getId());
-            return stmt.executeUpdate() > 0;
+            stmt.executeUpdate();
         }
+        return findByCode(currency.getCode());
     }
 
-    public boolean createCurrency(Currency currency) throws ClassNotFoundException, SQLException {
+    public Currency createCurrency(String code, String fullName, String sign) throws ClassNotFoundException, SQLException {
 
-        String  sql = "INSERT INTO currencies (code, fullName, sign) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO currencies (code, fullName, sign) VALUES (?, ?, ?)";
         Class.forName(JDBC_LOAD);
         try (Connection connection = DriverManager.getConnection(DB_URL);
         PreparedStatement stmt = connection.prepareStatement(sql)) {
-            stmt.setString(1, currency.getCode());
-            stmt.setString(2, currency.getFullName());
-            stmt.setString(3, currency.getSign());
-            return stmt.executeUpdate() > 0;
+            stmt.setString(1, code);
+            stmt.setString(2, fullName);
+            stmt.setString(3, sign);
+            stmt.executeUpdate();
         }
+        return findByCode(code);
     }
 }
 
