@@ -4,44 +4,44 @@ import java.io.*;
 import java.sql.SQLException;
 import java.util.List;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.xcvqqz.currencyexchange.entity.Currency;
 import io.github.xcvqqz.currencyexchange.dao.CurrencyDao;
 import io.github.xcvqqz.currencyexchange.service.CurrencyService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.*;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 
 public class CurrenciesServlet extends HttpServlet {
 
-
     private final CurrencyService currencyService = new CurrencyService(new CurrencyDao());
+    private final ObjectMapper mapper = new ObjectMapper();
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-        PrintWriter printWriter = response.getWriter();
-        List<Currency> currency;
+        response.setContentType("response.setContentType(application/json");
+        response.setCharacterEncoding("UTF-8");
+        List<Currency> currencies;
 
-        try {
-            currency = currencyService.getAllCurrencies();
+        try  {
+            currencies = currencyService.getAllCurrencies();
+            mapper.writerWithDefaultPrettyPrinter().writeValue(response.getWriter(), currencies);
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
-        printWriter.println("<html>");
-        for (Currency c : currency) {
-            printWriter.println("<h1> " + c.getId() + "  |  " + c.getCode() + "  |  " + c.getFullName() + "  |  " + c.getSign() + " <h1>");
-        }
-        printWriter.println("<html>");
     }
-
-
 
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        response.setContentType("text/html;charset=UTF-8");
+        response.setContentType("response.setContentType(application/json");
+        response.setCharacterEncoding("UTF-8");
 
         try (PrintWriter printWriter = response.getWriter()){
             String code = request.getParameter("code");

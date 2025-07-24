@@ -19,6 +19,9 @@ public class CurrencyServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
+        response.setContentType("response.setContentType(application/json");
+        response.setCharacterEncoding("UTF-8");
+
         String path = request.getPathInfo();
         String code = path.substring(1);
         PrintWriter printWriter = response.getWriter();
@@ -27,7 +30,6 @@ public class CurrencyServlet extends HttpServlet {
         if (code == null || code.isEmpty()) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             printWriter.println("Currency code parameter is missing");
-            return;
         }
 
         try {
@@ -55,7 +57,8 @@ public class CurrencyServlet extends HttpServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        response.setContentType("text/html;charset=UTF-8");
+        response.setContentType("response.setContentType(application/json");
+        response.setCharacterEncoding("UTF-8");
 
 
         try (PrintWriter printWriter = response.getWriter()){
