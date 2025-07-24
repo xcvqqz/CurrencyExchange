@@ -27,7 +27,7 @@ public class CurrenciesServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         List<Currency> currencies;
 
-        try  {
+        try {
             currencies = currencyService.getAllCurrencies();
             mapper.writerWithDefaultPrettyPrinter().writeValue(response.getWriter(), currencies);
         } catch (ClassNotFoundException e) {
@@ -42,8 +42,8 @@ public class CurrenciesServlet extends HttpServlet {
 
         response.setContentType("response.setContentType(application/json");
         response.setCharacterEncoding("UTF-8");
+        Currency currency;
 
-        try (PrintWriter printWriter = response.getWriter()){
             String code = request.getParameter("code");
             String fullName = request.getParameter("fullName");
             String sign = request.getParameter("sign");
@@ -53,27 +53,15 @@ public class CurrenciesServlet extends HttpServlet {
                     sign == null || sign.isEmpty()) {
                 response.sendError(HttpServletResponse.SC_BAD_REQUEST,
                         "Missing required parameters: code, name or sign");
-                return;
+                response.setStatus(500);
             }
 
-            currencyService.createCurrency(code, fullName, sign);
-
-            printWriter.println("<html>");
-            printWriter.println("<head><title>Success</title></head>");
-            printWriter.println("<body>");
-            printWriter.println("<h1>УСПЕХ</h1>");
-            printWriter.println("<p>Валюта " + code + " успешно добавлена</p>");
-            printWriter.println("</body>");
-            printWriter.println("</html>");
-
+        try {
+            currency = currencyService.createCurrency(code, fullName, sign);
         } catch (SQLException | ClassNotFoundException e) {
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-                    "Database error: " + e.getMessage());
-        } catch (Exception e) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST,
-                    "Invalid request: " + e.getMessage());
+            throw new RuntimeException(e);
+        }
+        mapper.writerWithDefaultPrettyPrinter().writeValue(response.getWriter(), currency);
         }
     }
-
-}
 
