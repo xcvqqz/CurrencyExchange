@@ -10,9 +10,6 @@ import io.github.xcvqqz.currencyexchange.dao.CurrencyDao;
 import io.github.xcvqqz.currencyexchange.service.CurrencyService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.*;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 
 
 public class CurrenciesServlet extends HttpServlet {
