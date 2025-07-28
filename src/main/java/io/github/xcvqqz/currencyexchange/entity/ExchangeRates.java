@@ -2,15 +2,15 @@ package io.github.xcvqqz.currencyexchange.entity;
 
 public class ExchangeRates {
 
-    private int baseCurrencyId;
-    private int targetCurrencyId;
+    private Currency baseCurrency;
+    private Currency targetCurrency;
     private double rate;
     private int id;
 
-    public ExchangeRates(int id, int baseCurrencyId, int targetCurrencyId, double rate) {
+    public ExchangeRates(int id, Currency baseCurrency, Currency targetCurrency, double rate) {
         this.id = id;
-        this.baseCurrencyId = baseCurrencyId;
-        this.targetCurrencyId = targetCurrencyId;
+        this.baseCurrency = baseCurrency;
+        this.targetCurrency = targetCurrency;
         this.rate = rate;
     }
 
@@ -22,20 +22,20 @@ public class ExchangeRates {
         this.id = id;
     }
 
-    public int getBaseCurrencyId() {
-        return baseCurrencyId;
+    public Currency getBaseCurrency() {
+        return baseCurrency;
     }
 
-    public void setBaseCurrencyId(int baseCurrencyId) {
-        this.baseCurrencyId = baseCurrencyId;
+    public void setBaseCurrency(int baseCurrencyId) {
+        this.baseCurrency = baseCurrency;
     }
 
-    public int getTargetCurrencyId() {
-        return targetCurrencyId;
+    public Currency getTargetCurrency() {
+        return targetCurrency;
     }
 
-    public void setTargetCurrencyId(int targetCurrencyId) {
-        this.targetCurrencyId = targetCurrencyId;
+    public void setTargetCurrency(int targetCurrencyId) {
+        this.targetCurrency = targetCurrency;
     }
 
     public double getRate() {
