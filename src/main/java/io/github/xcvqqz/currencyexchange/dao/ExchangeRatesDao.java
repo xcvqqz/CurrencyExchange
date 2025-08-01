@@ -28,7 +28,7 @@ public class ExchangeRatesDao {
 
         try (Connection connection = DriverManager.getConnection(DB_URL);
              Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)){
+             ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
                 Currency BaseCurrency = new Currency(
@@ -52,6 +52,57 @@ public class ExchangeRatesDao {
         }
         return result;
     }
+
+
+    public ExchangeRates getExchangeRatePair(String baseCode, String targetCode) throws ClassNotFoundException, SQLException {
+
+        Class.forName(JDBC_LOAD);
+        Currency baseCurrency;
+        Currency targetCurrency;
+        ExchangeRates result = null;
+
+        String sql = "SELECT " +
+                "er.id, " +
+                "base.id AS IdBaseCurrency, " + "base.code AS CodeBaseCurrency, " + "base.fullName AS FullNameBaseCurrency, " + "base.sign AS SignBaseCurrency, " +
+                "target.id AS IdTargetCurrency, " + "target.code AS CodeTargetCurrency, " + "target.fullName AS FullNameTargetCurrency, " + "target.sign AS SignTargetCurrency, " +
+                "er.Rate " +
+                "FROM ExchangeRates er " +
+                "JOIN currencies base ON er.BaseCurrencyId = base.id " +
+                "JOIN currencies target ON er.TargetCurrencyId = target.id " +
+                "WHERE CodeBaseCurrency = ? AND CodeTargetCurrency = ?";
+
+
+        try (Connection connection = DriverManager.getConnection(DB_URL);
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, baseCode);
+            stmt.setString(2, targetCode);
+            try (ResultSet rs = stmt.executeQuery()) {
+
+                while (rs.next()) {
+                    baseCurrency = new Currency(
+                            rs.getInt("IdBaseCurrency"),
+                            rs.getString("CodeBaseCurrency"),
+                            rs.getString("FullNameBaseCurrency"),
+                            rs.getString("SignBaseCurrency"));
+
+                    targetCurrency = new Currency(
+                            rs.getInt("IdTargetCurrency"),
+                            rs.getString("CodeTargetCurrency"),
+                            rs.getString("FullNameTargetCurrency"),
+                            rs.getString("SignTargetCurrency"));
+
+                    result = new ExchangeRates(
+                            rs.getInt("id"),
+                            baseCurrency,
+                            targetCurrency,
+                            rs.getDouble("Rate"));
+                }
+            }
+        }
+        return result;
+    }
+
+
 
 }
 
