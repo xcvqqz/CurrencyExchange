@@ -23,4 +23,8 @@ public class ExchangeRatesService {
         return exchangeRatesDao.getExchangeRatePair(baseCode, targetCode);
     }
 
+    public ExchangeRates createExchangeRates(String baseCode, String targetCode, double rate) throws SQLException, ClassNotFoundException {
+        return exchangeRatesDao.createExchangeRates(baseCode, targetCode, rate);
+    }
+
 }

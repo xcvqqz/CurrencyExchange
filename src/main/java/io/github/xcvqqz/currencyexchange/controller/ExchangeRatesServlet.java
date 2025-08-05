@@ -39,5 +39,27 @@ public class ExchangeRatesServlet extends HttpServlet {
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
+
+        response.setContentType("response.setContentType(application/json");
+        response.setCharacterEncoding("UTF-8");
+        ExchangeRates exchangeRates;
+
+
+        String baseCode = request.getParameter("baseCode");
+        String targetCode = request.getParameter("targetCode");
+        double rate = Double.parseDouble(request.getParameter("rate"));
+
+
+        try {
+            exchangeRates = exchangeRatesService.createExchangeRates(baseCode, targetCode, rate);
+            mapper.writerWithDefaultPrettyPrinter().writeValue(response.getWriter(), exchangeRates);
+        } catch (ClassNotFoundException | SQLException e) {
+            throw new RuntimeException(e);
+        }
+
     }
+
+
+
+
 }
