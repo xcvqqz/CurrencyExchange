@@ -16,7 +16,7 @@ public class ExchangeRatesDao {
     public List<ExchangeRates> getAllExchangeRates() throws ClassNotFoundException, SQLException {
 
         Class.forName(JDBC_LOAD);
-        List<ExchangeRates> result = new ArrayList<ExchangeRates>();
+        List<ExchangeRates> result = new ArrayList<>();
         String sql = "SELECT " +
                 "er.id, " +
                 "base.id AS IdBaseCurrency, " + "base.code AS CodeBaseCurrency, " + "base.fullName AS FullNameBaseCurrency, " + "base.sign AS SignBaseCurrency, " +

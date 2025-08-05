@@ -33,7 +33,7 @@
     </servlet>
     <servlet-mapping>
         <servlet-name>ExchangeRateServlet</servlet-name>
-        <url-pattern>/exchangeRate</url-pattern>
+        <url-pattern>/exchangeRate/*</url-pattern>
     </servlet-mapping>
 
 </web-app>

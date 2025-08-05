@@ -25,8 +25,24 @@ public class ExchangeRateServlet extends HttpServlet {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-        String baseCode = request.getParameter("baseCode");
-        String targetCode = request.getParameter("targetCode");
+        String pathInfo = request.getPathInfo();
+
+        if (pathInfo == null || pathInfo.length() != 7) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write("{\"error\": \"Invalid URL format. Use /exchangeRate/EURRUB\"}");
+            return;
+        }
+
+        String currencyPair = pathInfo.substring(1);
+        String baseCode = currencyPair.substring(0, 3);
+        String targetCode = currencyPair.substring(3);
+
+    
+        if (!baseCode.matches("[A-Z]{3}") || !targetCode.matches("[A-Z]{3}")) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write("{\"error\": \"Currency codes must be 3 uppercase letters\"}");
+            return;
+        }
 
         if (baseCode == null || targetCode == null) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
