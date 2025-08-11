@@ -166,8 +166,59 @@ public ExchangeRates createExchangeRates(String baseCode, String targetCode, dou
         }
 
 
+    public ExchangeRates updateExchangeRates(String baseCode, String targetCode, double rate) throws ClassNotFoundException, SQLException {
+
+        Class.forName(JDBC_LOAD);
+        Currency baseCurrency = null;
+        Currency targetCurrency = null;
+
+        String queryBaseСurrency = "SELECT * from currencies WHERE code = ?";
+        String queryTargetCurrency = "SELECT * from currencies WHERE code = ?";
+        String sqlUpdate = "UPDATE exchangeRates SET rate = ? WHERE BaseCurrencyId = ? AND TargetCurrencyId = ?";
 
 
+        try(Connection connection = DriverManager.getConnection(DB_URL);
+            PreparedStatement stmt1 = connection.prepareStatement(queryBaseСurrency);
+            PreparedStatement stmt2 = connection.prepareStatement(queryTargetCurrency);
+            PreparedStatement stmt3 = connection.prepareStatement(sqlUpdate)){
+
+            stmt1.setString(1, baseCode);
+            stmt2.setString(1, targetCode);
+
+
+            try (ResultSet rs = stmt1.executeQuery()) {
+                while (rs.next()) {
+                    baseCurrency = new Currency(
+                            rs.getInt("id"),
+                            rs.getString("code"),
+                            rs.getString("fullName"),
+                            rs.getString("sign"));
+                }
+            }
+
+            try (ResultSet rs = stmt2.executeQuery()) {
+                while (rs.next()) {
+                    targetCurrency = new Currency(
+                            rs.getInt("id"),
+                            rs.getString("code"),
+                            rs.getString("fullName"),
+                            rs.getString("sign"));
+                }
+            }
+
+            if (baseCurrency == null || targetCurrency == null) {
+                throw new SQLException("One or both currencies not found");
+            }
+
+            stmt3.setDouble(1, rate);
+            stmt3.setInt(2, baseCurrency.getId());
+            stmt3.setInt(3, targetCurrency.getId());
+            stmt3.executeUpdate();
+
+        }
+        return getExchangeRatePair(baseCode, targetCode);
+
+    }
 
 
 }

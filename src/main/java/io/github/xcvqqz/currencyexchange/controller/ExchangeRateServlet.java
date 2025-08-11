@@ -12,12 +12,25 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ExchangeRateServlet extends HttpServlet {
 
 
     private final ExchangeRatesService exchangeRatesService = new ExchangeRatesService(new ExchangeRatesDao());
     private final ObjectMapper mapper = new ObjectMapper();
+
+
+
+    @Override
+    protected void service(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        if ("PATCH".equalsIgnoreCase(request.getMethod())) {
+            doPatch(request, response);
+        } else {
+            super.service(request, response);
+        }
+    }
 
 
     @Override
@@ -37,7 +50,7 @@ public class ExchangeRateServlet extends HttpServlet {
         String baseCode = currencyPair.substring(0, 3);
         String targetCode = currencyPair.substring(3);
 
-    
+
         if (!baseCode.matches("[A-Z]{3}") || !targetCode.matches("[A-Z]{3}")) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             response.getWriter().write("{\"error\": \"Currency codes must be 3 uppercase letters\"}");
@@ -63,4 +76,56 @@ public class ExchangeRateServlet extends HttpServlet {
             response.getWriter().write("{\"error\": \"Database error: " + e.getMessage() + "\"}");
         }
     }
-}
+
+
+    public void doPatch(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
+
+            String path = request.getPathInfo();
+            if (path == null || path.length() < 7) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+
+            }
+
+            String baseCode = path.substring(1, 4).toUpperCase();
+            String targetCode = path.substring(4).toUpperCase();
+
+
+            if (!baseCode.matches("[A-Z]{3}") || !targetCode.matches("[A-Z]{3}")) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            }
+
+
+
+        String rateParam = request.getReader().readLine().substring(5);
+        if (rateParam == null || rateParam.trim().isEmpty()) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write("Параметр 'rate' обязателен");
+            return;
+        }
+
+        double rate;
+        try {
+            rate = Double.parseDouble(rateParam);
+        } catch (NumberFormatException e) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write("Параметр 'rate' должен быть числом");
+            return;
+        }
+
+        if (rate < 0) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().write("Курс не может быть отрицательным");
+            return;
+        }
+
+            try {
+                ExchangeRates exchangeRates = exchangeRatesService.updateExchangeRates(baseCode, targetCode, rate);
+                mapper.writerWithDefaultPrettyPrinter().writeValue(response.getWriter(), exchangeRates);
+            } catch (SQLException | ClassNotFoundException | IOException | RuntimeException e) {
+                throw new RuntimeException(e);
+            }
+        } 
+    }

@@ -63,8 +63,9 @@ public class CurrencyDao {
 
     public Currency updateCurrency(Currency currency) throws ClassNotFoundException, SQLException {
 
-        String sql = "UPDATE currencies SET code = ?, fullName = ?, sign = ? WHERE id = ?";
+
         Class.forName(JDBC_LOAD);
+        String sql = "UPDATE currencies SET code = ?, fullName = ?, sign = ? WHERE id = ?";
 
 
         try (Connection connection = DriverManager.getConnection(DB_URL);
