@@ -1,5 +1,6 @@
 package io.github.xcvqqz.currencyexchange.service;
 
+import io.github.xcvqqz.currencyexchange.dto.CurrencyDto;
 import io.github.xcvqqz.currencyexchange.entity.Currency;
 import io.github.xcvqqz.currencyexchange.dao.CurrencyDao;
 
@@ -14,19 +15,19 @@ public class CurrencyService {
         this.currencyDao = currencyDao;
     }
 
-    public List<Currency> getAllCurrencies() throws ClassNotFoundException {
+    public List<CurrencyDto> getAllCurrencies() throws ClassNotFoundException {
         return currencyDao.getAllCurrencies();
     }
 
-    public Currency findByCode(String code) throws SQLException, ClassNotFoundException {
+    public CurrencyDto findByCode(String code) throws SQLException, ClassNotFoundException {
         return currencyDao.findByCode(code);
     }
 
-    public Currency updateCurrency(Currency currency) throws SQLException, ClassNotFoundException {
+    public CurrencyDto updateCurrency(Currency currency) throws SQLException, ClassNotFoundException {
         return currencyDao.updateCurrency(currency);
     }
 
-    public Currency createCurrency(String code, String fullName, String sign) throws SQLException, ClassNotFoundException {
+    public CurrencyDto createCurrency(String code, String fullName, String sign) throws SQLException, ClassNotFoundException {
         return currencyDao.createCurrency(code, fullName, sign);
     }
 

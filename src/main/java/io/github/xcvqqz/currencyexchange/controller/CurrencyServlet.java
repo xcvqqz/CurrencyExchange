@@ -4,6 +4,7 @@ import java.io.*;
 import java.sql.SQLException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.xcvqqz.currencyexchange.dto.CurrencyDto;
 import io.github.xcvqqz.currencyexchange.entity.Currency;
 import io.github.xcvqqz.currencyexchange.dao.CurrencyDao;
 import io.github.xcvqqz.currencyexchange.service.CurrencyService;
@@ -32,7 +33,7 @@ public class CurrencyServlet extends HttpServlet {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST,"Currency code parameter is missing");
         }
 
-        Currency currency = null;
+        CurrencyDto currency = null;
         try {
             currency = currencyService.findByCode(code);
         } catch (SQLException | ClassNotFoundException e) {
@@ -48,7 +49,7 @@ public class CurrencyServlet extends HttpServlet {
 
         response.setContentType("response.setContentType(application/json");
         response.setCharacterEncoding("UTF-8");
-        Currency currency;
+        CurrencyDto currency;
 
         String code = request.getParameter("code");
         String fullName = request.getParameter("fullName");

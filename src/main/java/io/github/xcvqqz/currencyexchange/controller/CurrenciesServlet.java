@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.xcvqqz.currencyexchange.dto.CurrencyDto;
 import io.github.xcvqqz.currencyexchange.entity.Currency;
 import io.github.xcvqqz.currencyexchange.dao.CurrencyDao;
 import io.github.xcvqqz.currencyexchange.service.CurrencyService;
@@ -17,12 +18,13 @@ public class CurrenciesServlet extends HttpServlet {
     private final CurrencyService currencyService = new CurrencyService(new CurrencyDao());
     private final ObjectMapper mapper = new ObjectMapper();
 
+
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
         response.setContentType("response.setContentType(application/json");
         response.setCharacterEncoding("UTF-8");
-        List<Currency> currencies;
+        List<CurrencyDto> currencies;
 
         try {
             currencies = currencyService.getAllCurrencies();
@@ -39,7 +41,7 @@ public class CurrenciesServlet extends HttpServlet {
 
         response.setContentType("response.setContentType(application/json");
         response.setCharacterEncoding("UTF-8");
-        Currency currency;
+        CurrencyDto currency;
 
             String code = request.getParameter("code");
             String fullName = request.getParameter("fullName");

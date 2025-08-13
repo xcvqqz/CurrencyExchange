@@ -1,5 +1,6 @@
 package io.github.xcvqqz.currencyexchange.dao;
 
+import io.github.xcvqqz.currencyexchange.dto.CurrencyDto;
 import io.github.xcvqqz.currencyexchange.entity.Currency;
 
 import java.sql.*;
@@ -12,9 +13,9 @@ public class CurrencyDao {
     private static final String JDBC_LOAD = "org.sqlite.JDBC";
 
 
-    public List<Currency> getAllCurrencies() throws ClassNotFoundException {
+    public List<CurrencyDto> getAllCurrencies() throws ClassNotFoundException {
 
-        List<Currency> result = new ArrayList<>();
+        List<CurrencyDto> result = new ArrayList<>();
         Class.forName(JDBC_LOAD);
 
         try (Connection connection = DriverManager.getConnection(DB_URL);
@@ -22,7 +23,7 @@ public class CurrencyDao {
              ResultSet rs = stmt.executeQuery("SELECT * FROM currencies")) {
 
             while (rs.next()) {
-                result.add(new Currency(
+                result.add(new CurrencyDto(
                         rs.getInt("id"),
                         rs.getString("code"),
                         rs.getString("fullName"),
@@ -36,10 +37,10 @@ public class CurrencyDao {
     }
 
 
-    public Currency findByCode(String code) throws ClassNotFoundException, SQLException {
+    public CurrencyDto findByCode(String code) throws ClassNotFoundException, SQLException {
 
         Class.forName(JDBC_LOAD);
-        Currency currency;
+        CurrencyDto currency;
 
         try (Connection connection = DriverManager.getConnection(DB_URL);
              PreparedStatement stmt = connection.prepareStatement("SELECT * FROM currencies WHERE code = ?");){
@@ -47,7 +48,7 @@ public class CurrencyDao {
             try (ResultSet rs = stmt.executeQuery()) {
 
                 if (rs.next()) {
-                    currency = new Currency(
+                    currency = new CurrencyDto(
                             rs.getInt("id"),
                             rs.getString("code"),
                             rs.getString("fullName"),
@@ -61,7 +62,7 @@ public class CurrencyDao {
     }
 
 
-    public Currency updateCurrency(Currency currency) throws ClassNotFoundException, SQLException {
+    public CurrencyDto updateCurrency(Currency currency) throws ClassNotFoundException, SQLException {
 
 
         Class.forName(JDBC_LOAD);
@@ -79,7 +80,7 @@ public class CurrencyDao {
         return findByCode(currency.getCode());
     }
 
-    public Currency createCurrency(String code, String fullName, String sign) throws ClassNotFoundException, SQLException {
+    public CurrencyDto createCurrency(String code, String fullName, String sign) throws ClassNotFoundException, SQLException {
 
         String sql = "INSERT INTO currencies (code, fullName, sign) VALUES (?, ?, ?)";
         Class.forName(JDBC_LOAD);

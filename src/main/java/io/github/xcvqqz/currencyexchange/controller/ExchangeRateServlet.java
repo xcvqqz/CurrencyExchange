@@ -46,9 +46,8 @@ public class ExchangeRateServlet extends HttpServlet {
             return;
         }
 
-        String currencyPair = pathInfo.substring(1);
-        String baseCode = currencyPair.substring(0, 3);
-        String targetCode = currencyPair.substring(3);
+        String baseCode = pathInfo.substring(1, 4).toUpperCase();
+        String targetCode = pathInfo.substring(4).toUpperCase();
 
 
         if (!baseCode.matches("[A-Z]{3}") || !targetCode.matches("[A-Z]{3}")) {
@@ -82,11 +81,9 @@ public class ExchangeRateServlet extends HttpServlet {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-
             String path = request.getPathInfo();
             if (path == null || path.length() < 7) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-
             }
 
             String baseCode = path.substring(1, 4).toUpperCase();
@@ -96,7 +93,6 @@ public class ExchangeRateServlet extends HttpServlet {
             if (!baseCode.matches("[A-Z]{3}") || !targetCode.matches("[A-Z]{3}")) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             }
-
 
 
         String rateParam = request.getReader().readLine().substring(5);
