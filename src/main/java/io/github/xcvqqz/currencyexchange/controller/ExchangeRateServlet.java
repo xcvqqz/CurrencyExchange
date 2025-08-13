@@ -2,6 +2,7 @@ package io.github.xcvqqz.currencyexchange.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.xcvqqz.currencyexchange.dao.ExchangeRatesDao;
+import io.github.xcvqqz.currencyexchange.dto.ExchangeRatesDto;
 import io.github.xcvqqz.currencyexchange.entity.ExchangeRates;
 import io.github.xcvqqz.currencyexchange.service.ExchangeRatesService;
 import jakarta.servlet.ServletException;
@@ -38,6 +39,7 @@ public class ExchangeRateServlet extends HttpServlet {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
+        ExchangeRatesDto exchangeRate = null;
         String pathInfo = request.getPathInfo();
 
         if (pathInfo == null || pathInfo.length() != 7) {
@@ -63,7 +65,7 @@ public class ExchangeRateServlet extends HttpServlet {
         }
 
         try {
-            ExchangeRates exchangeRate = exchangeRatesService.getExchangeRates(baseCode, targetCode);
+            exchangeRate = exchangeRatesService.getExchangeRates(baseCode, targetCode);
             if (exchangeRate == null) {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
                 response.getWriter().write("{\"error\": \"Exchange rate not found for " + baseCode + " to " + targetCode + "\"}");
@@ -81,18 +83,20 @@ public class ExchangeRateServlet extends HttpServlet {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-            String path = request.getPathInfo();
-            if (path == null || path.length() < 7) {
+        String path = request.getPathInfo();
+        ExchangeRatesDto exchangeRate = null;
+
+        if (path == null || path.length() < 7) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            }
+        }
 
-            String baseCode = path.substring(1, 4).toUpperCase();
-            String targetCode = path.substring(4).toUpperCase();
+        String baseCode = path.substring(1, 4).toUpperCase();
+        String targetCode = path.substring(4).toUpperCase();
 
 
-            if (!baseCode.matches("[A-Z]{3}") || !targetCode.matches("[A-Z]{3}")) {
+        if (!baseCode.matches("[A-Z]{3}") || !targetCode.matches("[A-Z]{3}")) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            }
+        }
 
 
         String rateParam = request.getReader().readLine().substring(5);
@@ -118,8 +122,8 @@ public class ExchangeRateServlet extends HttpServlet {
         }
 
             try {
-                ExchangeRates exchangeRates = exchangeRatesService.updateExchangeRates(baseCode, targetCode, rate);
-                mapper.writerWithDefaultPrettyPrinter().writeValue(response.getWriter(), exchangeRates);
+                 exchangeRate = exchangeRatesService.updateExchangeRates(baseCode, targetCode, rate);
+                mapper.writerWithDefaultPrettyPrinter().writeValue(response.getWriter(), exchangeRate);
             } catch (SQLException | ClassNotFoundException | IOException | RuntimeException e) {
                 throw new RuntimeException(e);
             }

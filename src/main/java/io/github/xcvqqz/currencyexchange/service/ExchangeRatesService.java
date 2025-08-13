@@ -1,6 +1,7 @@
 package io.github.xcvqqz.currencyexchange.service;
 
 import io.github.xcvqqz.currencyexchange.dao.ExchangeRatesDao;
+import io.github.xcvqqz.currencyexchange.dto.ExchangeRatesDto;
 import io.github.xcvqqz.currencyexchange.entity.ExchangeRates;
 
 import java.sql.SQLException;
@@ -15,19 +16,19 @@ public class ExchangeRatesService {
         this.exchangeRatesDao = exchangeRatesDao;
     }
 
-    public List<ExchangeRates> getAllExchangeRates() throws SQLException, ClassNotFoundException {
+    public List<ExchangeRatesDto> getAllExchangeRates() throws SQLException, ClassNotFoundException {
         return exchangeRatesDao.getAllExchangeRates();
     }
 
-    public ExchangeRates getExchangeRates(String baseCode, String targetCode) throws SQLException, ClassNotFoundException {
+    public ExchangeRatesDto getExchangeRates(String baseCode, String targetCode) throws SQLException, ClassNotFoundException {
         return exchangeRatesDao.getExchangeRatePair(baseCode, targetCode);
     }
 
-    public ExchangeRates createExchangeRates(String baseCode, String targetCode, double rate) throws SQLException, ClassNotFoundException {
+    public ExchangeRatesDto createExchangeRates(String baseCode, String targetCode, double rate) throws SQLException, ClassNotFoundException {
         return exchangeRatesDao.createExchangeRates(baseCode, targetCode, rate);
     }
 
-    public ExchangeRates updateExchangeRates(String baseCode, String targetCode, double rate) throws SQLException, ClassNotFoundException {
+    public ExchangeRatesDto updateExchangeRates(String baseCode, String targetCode, double rate) throws SQLException, ClassNotFoundException {
         return exchangeRatesDao.updateExchangeRates(baseCode, targetCode, rate);
     }
 

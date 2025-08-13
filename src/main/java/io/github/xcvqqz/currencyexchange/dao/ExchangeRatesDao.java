@@ -1,5 +1,6 @@
 package io.github.xcvqqz.currencyexchange.dao;
 
+import io.github.xcvqqz.currencyexchange.dto.ExchangeRatesDto;
 import io.github.xcvqqz.currencyexchange.entity.Currency;
 import io.github.xcvqqz.currencyexchange.entity.ExchangeRates;
 
@@ -13,10 +14,10 @@ public class ExchangeRatesDao {
     private static final String JDBC_LOAD = "org.sqlite.JDBC";
 
 
-    public List<ExchangeRates> getAllExchangeRates() throws ClassNotFoundException, SQLException {
+    public List<ExchangeRatesDto> getAllExchangeRates() throws ClassNotFoundException, SQLException {
 
         Class.forName(JDBC_LOAD);
-        List<ExchangeRates> result = new ArrayList<>();
+        List<ExchangeRatesDto> result = new ArrayList<>();
         String sql = "SELECT " +
                 "er.id, " +
                 "base.id AS IdBaseCurrency, " + "base.code AS CodeBaseCurrency, " + "base.fullName AS FullNameBaseCurrency, " + "base.sign AS SignBaseCurrency, " +
@@ -43,7 +44,7 @@ public class ExchangeRatesDao {
                         rs.getString("FullNameTargetCurrency"),
                         rs.getString("SignTargetCurrency"));
 
-                result.add(new ExchangeRates(
+                result.add(new ExchangeRatesDto(
                         rs.getInt("id"),
                         BaseCurrency,
                         TargetCurrency,
@@ -54,12 +55,12 @@ public class ExchangeRatesDao {
     }
 
 
-    public ExchangeRates getExchangeRatePair(String baseCode, String targetCode) throws ClassNotFoundException, SQLException {
+    public ExchangeRatesDto getExchangeRatePair(String baseCode, String targetCode) throws ClassNotFoundException, SQLException {
 
         Class.forName(JDBC_LOAD);
         Currency baseCurrency;
         Currency targetCurrency;
-        ExchangeRates result = null;
+        ExchangeRatesDto result = null;
 
         String sql = "SELECT " +
                 "er.id, " +
@@ -91,7 +92,7 @@ public class ExchangeRatesDao {
                             rs.getString("FullNameTargetCurrency"),
                             rs.getString("SignTargetCurrency"));
 
-                    result = new ExchangeRates(
+                    result = new ExchangeRatesDto(
                             rs.getInt("id"),
                             baseCurrency,
                             targetCurrency,
@@ -104,7 +105,7 @@ public class ExchangeRatesDao {
 
 
 
-public ExchangeRates createExchangeRates(String baseCode, String targetCode, double rate) throws ClassNotFoundException, SQLException {
+public ExchangeRatesDto createExchangeRates(String baseCode, String targetCode, double rate) throws ClassNotFoundException, SQLException {
 
         Class.forName(JDBC_LOAD);
         Currency baseCurrency = null;
@@ -166,7 +167,7 @@ public ExchangeRates createExchangeRates(String baseCode, String targetCode, dou
         }
 
 
-    public ExchangeRates updateExchangeRates(String baseCode, String targetCode, double rate) throws ClassNotFoundException, SQLException {
+    public ExchangeRatesDto updateExchangeRates(String baseCode, String targetCode, double rate) throws ClassNotFoundException, SQLException {
 
         Class.forName(JDBC_LOAD);
         Currency baseCurrency = null;

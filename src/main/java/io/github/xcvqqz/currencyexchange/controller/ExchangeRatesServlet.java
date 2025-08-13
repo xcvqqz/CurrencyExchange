@@ -2,6 +2,7 @@ package io.github.xcvqqz.currencyexchange.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.xcvqqz.currencyexchange.dao.ExchangeRatesDao;
+import io.github.xcvqqz.currencyexchange.dto.ExchangeRatesDto;
 import io.github.xcvqqz.currencyexchange.entity.Currency;
 import io.github.xcvqqz.currencyexchange.entity.ExchangeRates;
 import io.github.xcvqqz.currencyexchange.service.ExchangeRatesService;
@@ -25,7 +26,7 @@ public class ExchangeRatesServlet extends HttpServlet {
 
         response.setContentType("response.setContentType(application/json");
         response.setCharacterEncoding("UTF-8");
-        List<ExchangeRates> exchangeRates;
+        List<ExchangeRatesDto> exchangeRates;
 
         try {
             exchangeRates = exchangeRatesService.getAllExchangeRates();
@@ -42,7 +43,7 @@ public class ExchangeRatesServlet extends HttpServlet {
 
         response.setContentType("response.setContentType(application/json");
         response.setCharacterEncoding("UTF-8");
-        ExchangeRates exchangeRates;
+        ExchangeRatesDto exchangeRates;
 
 
         String baseCode = request.getParameter("baseCode");

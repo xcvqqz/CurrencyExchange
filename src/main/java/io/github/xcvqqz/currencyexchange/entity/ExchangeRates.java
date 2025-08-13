@@ -2,10 +2,11 @@ package io.github.xcvqqz.currencyexchange.entity;
 
 public class ExchangeRates {
 
+    private int id;
     private Currency baseCurrency;
     private Currency targetCurrency;
     private double rate;
-    private int id;
+
 
     public ExchangeRates(int id, Currency baseCurrency, Currency targetCurrency, double rate) {
         this.id = id;
