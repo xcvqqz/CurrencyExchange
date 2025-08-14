@@ -2,23 +2,24 @@ package io.github.xcvqqz.currencyexchange.dao;
 
 import io.github.xcvqqz.currencyexchange.dto.CurrencyDto;
 import io.github.xcvqqz.currencyexchange.entity.Currency;
+import io.github.xcvqqz.currencyexchange.util.ConnectionFactory;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class CurrencyDao {
 
-    private static final String DB_URL = "jdbc:sqlite:C:\\Users\\Максим\\Desktop\\Java\\3 проект\\CurrencyExchange\\DataBase\\currency_exchange.db";
     private static final String JDBC_LOAD = "org.sqlite.JDBC";
-
 
     public List<CurrencyDto> getAllCurrencies() throws ClassNotFoundException {
 
         List<CurrencyDto> result = new ArrayList<>();
         Class.forName(JDBC_LOAD);
 
-        try (Connection connection = DriverManager.getConnection(DB_URL);
+
+        try (Connection connection = ConnectionFactory.getConnection();
              Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery("SELECT * FROM currencies")) {
 
@@ -42,7 +43,7 @@ public class CurrencyDao {
         Class.forName(JDBC_LOAD);
         CurrencyDto currency;
 
-        try (Connection connection = DriverManager.getConnection(DB_URL);
+        try (Connection connection = ConnectionFactory.getConnection();
              PreparedStatement stmt = connection.prepareStatement("SELECT * FROM currencies WHERE code = ?");){
             stmt.setString(1, code);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -67,9 +68,8 @@ public class CurrencyDao {
 
         Class.forName(JDBC_LOAD);
         String sql = "UPDATE currencies SET code = ?, fullName = ?, sign = ? WHERE id = ?";
-
-
-        try (Connection connection = DriverManager.getConnection(DB_URL);
+        
+        try (Connection connection = ConnectionFactory.getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, currency.getCode());
             stmt.setString(2, currency.getFullName());
@@ -84,7 +84,7 @@ public class CurrencyDao {
 
         String sql = "INSERT INTO currencies (code, fullName, sign) VALUES (?, ?, ?)";
         Class.forName(JDBC_LOAD);
-        try (Connection connection = DriverManager.getConnection(DB_URL);
+        try (Connection connection = ConnectionFactory.getConnection();
         PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, code);
             stmt.setString(2, fullName);

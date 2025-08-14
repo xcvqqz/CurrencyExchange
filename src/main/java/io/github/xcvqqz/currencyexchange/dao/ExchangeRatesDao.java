@@ -3,6 +3,7 @@ package io.github.xcvqqz.currencyexchange.dao;
 import io.github.xcvqqz.currencyexchange.dto.ExchangeRatesDto;
 import io.github.xcvqqz.currencyexchange.entity.Currency;
 import io.github.xcvqqz.currencyexchange.entity.ExchangeRates;
+import io.github.xcvqqz.currencyexchange.util.ConnectionFactory;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -10,9 +11,7 @@ import java.util.List;
 
 public class ExchangeRatesDao {
 
-    private static final String DB_URL = "jdbc:sqlite:C:\\Users\\Максим\\Desktop\\Java\\3 проект\\CurrencyExchange\\DataBase\\currency_exchange.db";
     private static final String JDBC_LOAD = "org.sqlite.JDBC";
-
 
     public List<ExchangeRatesDto> getAllExchangeRates() throws ClassNotFoundException, SQLException {
 
@@ -27,7 +26,7 @@ public class ExchangeRatesDao {
                 "JOIN currencies base ON er.BaseCurrencyId = base.id " +
                 "JOIN currencies target ON er.TargetCurrencyId = target.id;";
 
-        try (Connection connection = DriverManager.getConnection(DB_URL);
+        try (Connection connection = ConnectionFactory.getConnection();
              Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
@@ -73,7 +72,7 @@ public class ExchangeRatesDao {
                 "WHERE CodeBaseCurrency = ? AND CodeTargetCurrency = ?";
 
 
-        try (Connection connection = DriverManager.getConnection(DB_URL);
+        try (Connection connection = ConnectionFactory.getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, baseCode);
             stmt.setString(2, targetCode);
@@ -117,7 +116,7 @@ public ExchangeRatesDto createExchangeRates(String baseCode, String targetCode, 
         String sqlExecuteUpdate = "INSERT INTO ExchangeRates (baseCurrencyId, targetCurrencyId, rate) VALUES (?, ?, ?)";
 
 
-        try (Connection connection = DriverManager.getConnection(DB_URL);
+        try (Connection connection = ConnectionFactory.getConnection();
             PreparedStatement stmt1 = connection.prepareStatement(queryBaseCode);
             PreparedStatement stmt2 = connection.prepareStatement(queryTargetCode);
             PreparedStatement stmt3 = connection.prepareStatement(checkPairSql);
@@ -178,7 +177,7 @@ public ExchangeRatesDto createExchangeRates(String baseCode, String targetCode, 
         String sqlUpdate = "UPDATE exchangeRates SET rate = ? WHERE BaseCurrencyId = ? AND TargetCurrencyId = ?";
 
 
-        try(Connection connection = DriverManager.getConnection(DB_URL);
+        try(Connection connection = ConnectionFactory.getConnection();
             PreparedStatement stmt1 = connection.prepareStatement(queryBaseСurrency);
             PreparedStatement stmt2 = connection.prepareStatement(queryTargetCurrency);
             PreparedStatement stmt3 = connection.prepareStatement(sqlUpdate)){

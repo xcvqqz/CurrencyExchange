@@ -18,7 +18,6 @@ public class CurrenciesServlet extends HttpServlet {
     private final CurrencyService currencyService = new CurrencyService(new CurrencyDao());
     private final ObjectMapper mapper = new ObjectMapper();
 
-
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 

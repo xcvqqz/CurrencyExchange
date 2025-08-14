@@ -6,6 +6,7 @@ import io.github.xcvqqz.currencyexchange.dao.CurrencyDao;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 public class CurrencyService {
 
@@ -18,6 +19,7 @@ public class CurrencyService {
     public List<CurrencyDto> getAllCurrencies() throws ClassNotFoundException {
         return currencyDao.getAllCurrencies();
     }
+
 
     public CurrencyDto findByCode(String code) throws SQLException, ClassNotFoundException {
         return currencyDao.findByCode(code);
