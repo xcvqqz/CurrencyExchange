@@ -11,11 +11,17 @@ import java.util.List;
 
 public class ExchangeRatesDao {
 
-    private static final String JDBC_LOAD = "org.sqlite.JDBC";
+    static {
+        try {
+            Class.forName("org.sqlite.JDBC"); // Загрузка драйвера при старте приложения
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("JDBC Driver not found", e);
+        }
+    }
+
 
     public List<ExchangeRatesDto> getAllExchangeRates() throws ClassNotFoundException, SQLException {
 
-        Class.forName(JDBC_LOAD);
         List<ExchangeRatesDto> result = new ArrayList<>();
         String sql = "SELECT " +
                 "er.id, " +
@@ -56,7 +62,6 @@ public class ExchangeRatesDao {
 
     public ExchangeRatesDto getExchangeRatePair(String baseCode, String targetCode) throws ClassNotFoundException, SQLException {
 
-        Class.forName(JDBC_LOAD);
         Currency baseCurrency;
         Currency targetCurrency;
         ExchangeRatesDto result = null;
@@ -106,7 +111,6 @@ public class ExchangeRatesDao {
 
 public ExchangeRatesDto createExchangeRates(String baseCode, String targetCode, double rate) throws ClassNotFoundException, SQLException {
 
-        Class.forName(JDBC_LOAD);
         Currency baseCurrency = null;
         Currency targetCurrency = null;
 
@@ -168,7 +172,6 @@ public ExchangeRatesDto createExchangeRates(String baseCode, String targetCode, 
 
     public ExchangeRatesDto updateExchangeRates(String baseCode, String targetCode, double rate) throws ClassNotFoundException, SQLException {
 
-        Class.forName(JDBC_LOAD);
         Currency baseCurrency = null;
         Currency targetCurrency = null;
 
@@ -217,10 +220,7 @@ public ExchangeRatesDto createExchangeRates(String baseCode, String targetCode, 
 
         }
         return getExchangeRatePair(baseCode, targetCode);
-
     }
-
-
 }
 
 

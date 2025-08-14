@@ -11,13 +11,17 @@ import java.util.Optional;
 
 public class CurrencyDao {
 
-    private static final String JDBC_LOAD = "org.sqlite.JDBC";
+    static {
+        try {
+            Class.forName("org.sqlite.JDBC"); // Загрузка драйвера при старте приложения
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("JDBC Driver not found", e);
+        }
+    }
 
     public List<CurrencyDto> getAllCurrencies() throws ClassNotFoundException {
 
         List<CurrencyDto> result = new ArrayList<>();
-        Class.forName(JDBC_LOAD);
-
 
         try (Connection connection = ConnectionFactory.getConnection();
              Statement stmt = connection.createStatement();
@@ -40,7 +44,6 @@ public class CurrencyDao {
 
     public CurrencyDto findByCode(String code) throws ClassNotFoundException, SQLException {
 
-        Class.forName(JDBC_LOAD);
         CurrencyDto currency;
 
         try (Connection connection = ConnectionFactory.getConnection();
@@ -66,7 +69,6 @@ public class CurrencyDao {
     public CurrencyDto updateCurrency(Currency currency) throws ClassNotFoundException, SQLException {
 
 
-        Class.forName(JDBC_LOAD);
         String sql = "UPDATE currencies SET code = ?, fullName = ?, sign = ? WHERE id = ?";
         
         try (Connection connection = ConnectionFactory.getConnection();
@@ -83,7 +85,7 @@ public class CurrencyDao {
     public CurrencyDto createCurrency(String code, String fullName, String sign) throws ClassNotFoundException, SQLException {
 
         String sql = "INSERT INTO currencies (code, fullName, sign) VALUES (?, ?, ?)";
-        Class.forName(JDBC_LOAD);
+
         try (Connection connection = ConnectionFactory.getConnection();
         PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, code);
