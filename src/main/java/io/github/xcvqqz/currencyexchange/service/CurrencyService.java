@@ -16,12 +16,12 @@ public class CurrencyService {
         this.currencyDao = currencyDao;
     }
 
-    public List<CurrencyDto> getAllCurrencies() throws ClassNotFoundException {
+    public List<CurrencyDto> getAllCurrencies() throws ClassNotFoundException, SQLException {
         return currencyDao.getAllCurrencies();
     }
 
     public Optional<CurrencyDto> findByCode(String code) throws SQLException, ClassNotFoundException {
-        return Optional.ofNullable(currencyDao.findByCode(code));
+        return currencyDao.findByCode(code);
     }
 
     public CurrencyDto updateCurrency(Currency currency) throws SQLException, ClassNotFoundException {

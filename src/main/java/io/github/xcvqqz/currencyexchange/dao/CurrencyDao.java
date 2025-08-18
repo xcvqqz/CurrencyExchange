@@ -7,6 +7,7 @@ import io.github.xcvqqz.currencyexchange.util.ConnectionFactory;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class CurrencyDao {
 
@@ -18,7 +19,7 @@ public class CurrencyDao {
         }
     }
 
-    public List<CurrencyDto> getAllCurrencies() throws ClassNotFoundException {
+    public List<CurrencyDto> getAllCurrencies() throws ClassNotFoundException, SQLException {
 
         List<CurrencyDto> result = new ArrayList<>();
 
@@ -34,42 +35,37 @@ public class CurrencyDao {
                         rs.getString("sign")
                 ));
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
         return result;
     }
 
 
-    public CurrencyDto findByCode(String code) throws ClassNotFoundException, SQLException {
+    public Optional<CurrencyDto> findByCode(String code) throws IllegalArgumentException, SQLException {
 
-        CurrencyDto currency;
+        Optional<CurrencyDto> result = Optional.empty();
 
         try (Connection connection = ConnectionFactory.getConnection();
-             PreparedStatement stmt = connection.prepareStatement("SELECT * FROM currencies WHERE code = ?");){
+             PreparedStatement stmt = connection.prepareStatement("SELECT * FROM currencies WHERE code = ?");) {
             stmt.setString(1, code);
             try (ResultSet rs = stmt.executeQuery()) {
 
                 if (rs.next()) {
-                    currency = new CurrencyDto(
+                    result = Optional.of(new CurrencyDto(
                             rs.getInt("id"),
                             rs.getString("code"),
                             rs.getString("fullName"),
-                            rs.getString("sign"));
-                } else {
-                    throw new IllegalArgumentException("Currency not found: " + code);
+                            rs.getString("sign")));
                 }
             }
         }
-        return currency;
+        return result;
     }
 
 
-    public CurrencyDto updateCurrency(Currency currency) throws ClassNotFoundException, SQLException {
-
+    public CurrencyDto updateCurrency(Currency currency) throws SQLException {
 
         String sql = "UPDATE currencies SET code = ?, fullName = ?, sign = ? WHERE id = ?";
-        
+
         try (Connection connection = ConnectionFactory.getConnection();
              PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, currency.getCode());
@@ -78,21 +74,40 @@ public class CurrencyDao {
             stmt.setInt(4, currency.getId());
             stmt.executeUpdate();
         }
-        return findByCode(currency.getCode());
+
+        return new CurrencyDto(
+                currency.getId(),
+                currency.getCode(),
+                currency.getFullName(),
+                currency.getSign()
+        );
     }
 
-    public CurrencyDto createCurrency(String code, String fullName, String sign) throws ClassNotFoundException, SQLException {
+    public CurrencyDto createCurrency(String code, String fullName, String sign) throws SQLException {
 
         String sql = "INSERT INTO currencies (code, fullName, sign) VALUES (?, ?, ?)";
 
         try (Connection connection = ConnectionFactory.getConnection();
-        PreparedStatement stmt = connection.prepareStatement(sql)) {
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setString(1, code);
             stmt.setString(2, fullName);
             stmt.setString(3, sign);
             stmt.executeUpdate();
+
+            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    int generatedId = generatedKeys.getInt(1);
+                    return new CurrencyDto(generatedId, code, fullName, sign);
+                } else {
+                    throw new SQLException("Creating currency failed: no ID obtained.");
+                }
+            }
         }
-        return findByCode(code);
     }
+
+
+
 }
+
+
 

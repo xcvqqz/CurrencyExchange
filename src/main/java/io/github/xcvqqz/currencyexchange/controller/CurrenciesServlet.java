@@ -27,7 +27,7 @@ public class CurrenciesServlet extends HttpServlet {
         try {
             currencies = currencyService.getAllCurrencies();
             mapper.writerWithDefaultPrettyPrinter().writeValue(response.getWriter(), currencies);
-        } catch (ClassNotFoundException e) {
+        } catch (ClassNotFoundException | SQLException e) {
             throw new RuntimeException(e);
         }
     }
