@@ -6,7 +6,6 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.xcvqqz.currencyexchange.dto.CurrencyDto;
-import io.github.xcvqqz.currencyexchange.entity.Currency;
 import io.github.xcvqqz.currencyexchange.dao.CurrencyDao;
 import io.github.xcvqqz.currencyexchange.service.CurrencyService;
 import jakarta.servlet.ServletException;

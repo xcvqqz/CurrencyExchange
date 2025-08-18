@@ -20,9 +20,8 @@ public class CurrencyService {
         return currencyDao.getAllCurrencies();
     }
 
-
-    public CurrencyDto findByCode(String code) throws SQLException, ClassNotFoundException {
-        return currencyDao.findByCode(code);
+    public Optional<CurrencyDto> findByCode(String code) throws SQLException, ClassNotFoundException {
+        return Optional.ofNullable(currencyDao.findByCode(code));
     }
 
     public CurrencyDto updateCurrency(Currency currency) throws SQLException, ClassNotFoundException {

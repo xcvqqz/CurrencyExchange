@@ -13,12 +13,11 @@ public class ExchangeRatesDao {
 
     static {
         try {
-            Class.forName("org.sqlite.JDBC"); // Загрузка драйвера при старте приложения
+            Class.forName("org.sqlite.JDBC");
         } catch (ClassNotFoundException e) {
             throw new RuntimeException("JDBC Driver not found", e);
         }
     }
-
 
     public List<ExchangeRatesDto> getAllExchangeRates() throws ClassNotFoundException, SQLException {
 

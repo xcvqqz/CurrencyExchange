@@ -7,7 +7,6 @@ import io.github.xcvqqz.currencyexchange.util.ConnectionFactory;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class CurrencyDao {
 
