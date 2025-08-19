@@ -6,6 +6,7 @@ import io.github.xcvqqz.currencyexchange.entity.ExchangeRates;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 public class ExchangeRatesService {
 
@@ -20,7 +21,7 @@ public class ExchangeRatesService {
         return exchangeRatesDao.getAllExchangeRates();
     }
 
-    public ExchangeRatesDto getExchangeRates(String baseCode, String targetCode) throws SQLException, ClassNotFoundException {
+    public Optional<ExchangeRatesDto> getExchangeRates(String baseCode, String targetCode) throws SQLException, ClassNotFoundException {
         return exchangeRatesDao.getExchangeRatePair(baseCode, targetCode);
     }
 

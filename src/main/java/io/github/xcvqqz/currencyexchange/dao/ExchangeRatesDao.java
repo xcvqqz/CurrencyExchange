@@ -1,5 +1,6 @@
 package io.github.xcvqqz.currencyexchange.dao;
 
+import io.github.xcvqqz.currencyexchange.dto.CurrencyDto;
 import io.github.xcvqqz.currencyexchange.dto.ExchangeRatesDto;
 import io.github.xcvqqz.currencyexchange.entity.Currency;
 import io.github.xcvqqz.currencyexchange.entity.ExchangeRates;
@@ -8,6 +9,7 @@ import io.github.xcvqqz.currencyexchange.util.ConnectionFactory;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class ExchangeRatesDao {
 
@@ -19,7 +21,7 @@ public class ExchangeRatesDao {
         }
     }
 
-    public List<ExchangeRatesDto> getAllExchangeRates() throws ClassNotFoundException, SQLException {
+    public List<ExchangeRatesDto> getAllExchangeRates() throws SQLException {
 
         List<ExchangeRatesDto> result = new ArrayList<>();
         String sql = "SELECT " +
@@ -35,7 +37,7 @@ public class ExchangeRatesDao {
              Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
-            while (rs.next()) {
+            if (rs.next()) {
                 Currency BaseCurrency = new Currency(
                         rs.getInt("IdBaseCurrency"),
                         rs.getString("CodeBaseCurrency"),
@@ -59,11 +61,11 @@ public class ExchangeRatesDao {
     }
 
 
-    public ExchangeRatesDto getExchangeRatePair(String baseCode, String targetCode) throws ClassNotFoundException, SQLException {
+    public Optional<ExchangeRatesDto> getExchangeRatePair(String baseCode, String targetCode) throws SQLException {
 
         Currency baseCurrency;
         Currency targetCurrency;
-        ExchangeRatesDto result = null;
+        Optional<ExchangeRatesDto> result = Optional.empty();
 
         String sql = "SELECT " +
                 "er.id, " +
@@ -82,7 +84,7 @@ public class ExchangeRatesDao {
             stmt.setString(2, targetCode);
             try (ResultSet rs = stmt.executeQuery()) {
 
-                while (rs.next()) {
+                if (rs.next()) {
                     baseCurrency = new Currency(
                             rs.getInt("IdBaseCurrency"),
                             rs.getString("CodeBaseCurrency"),
@@ -95,11 +97,11 @@ public class ExchangeRatesDao {
                             rs.getString("FullNameTargetCurrency"),
                             rs.getString("SignTargetCurrency"));
 
-                    result = new ExchangeRatesDto(
+                    result = Optional.of(new ExchangeRatesDto(
                             rs.getInt("id"),
                             baseCurrency,
                             targetCurrency,
-                            rs.getDouble("Rate"));
+                            rs.getDouble("Rate")));
                 }
             }
         }
@@ -107,122 +109,125 @@ public class ExchangeRatesDao {
     }
 
 
+    public ExchangeRatesDto createExchangeRates(String baseCode, String targetCode, double rate) throws SQLException {
 
-public ExchangeRatesDto createExchangeRates(String baseCode, String targetCode, double rate) throws ClassNotFoundException, SQLException {
-
-        Currency baseCurrency = null;
-        Currency targetCurrency = null;
-
-        String queryBaseCode = "SELECT * from currencies WHERE code = ?";
-        String queryTargetCode = "SELECT * from currencies WHERE code = ?";
+        String queryByCode = "SELECT * from currencies WHERE code = ?";
         String checkPairSql = "SELECT 1 FROM ExchangeRates WHERE baseCurrencyId = ? AND targetCurrencyId = ?";
         String sqlExecuteUpdate = "INSERT INTO ExchangeRates (baseCurrencyId, targetCurrencyId, rate) VALUES (?, ?, ?)";
 
 
-        try (Connection connection = ConnectionFactory.getConnection();
-            PreparedStatement stmt1 = connection.prepareStatement(queryBaseCode);
-            PreparedStatement stmt2 = connection.prepareStatement(queryTargetCode);
-            PreparedStatement stmt3 = connection.prepareStatement(checkPairSql);
-            PreparedStatement stmt4 = connection.prepareStatement(sqlExecuteUpdate);) {
+        try (Connection connection = ConnectionFactory.getConnection()) {
 
-            stmt1.setString(1, baseCode);
-            stmt2.setString(1, targetCode);
+            Currency baseCurrency = findCurrency(connection, baseCode, queryByCode);
+            Currency targetCurrency = findCurrency(connection, targetCode, queryByCode);
 
-            try (ResultSet rs = stmt1.executeQuery()) {
-                while (rs.next()) {
-                    baseCurrency = new Currency(
-                            rs.getInt("id"),
-                            rs.getString("code"),
-                            rs.getString("fullName"),
-                            rs.getString("sign"));
+            try (PreparedStatement checkStmt = connection.prepareStatement(checkPairSql);
+                 PreparedStatement insertStmt = connection.prepareStatement(sqlExecuteUpdate);) {
+
+                if (baseCurrency == null || targetCurrency == null) {
+                    throw new SQLException("One or both currencies not found");
+                }
+
+                checkStmt.setInt(1, baseCurrency.getId());
+                checkStmt.setInt(2, targetCurrency.getId());
+                try (ResultSet rs = checkStmt.executeQuery()) {
+                    if (rs.next()) {
+                        throw new SQLException("Exchange rate pair already exists");
+                    }
+                }
+
+                insertStmt.setInt(1, baseCurrency.getId());
+                insertStmt.setInt(2, targetCurrency.getId());
+                insertStmt.setDouble(3, rate);
+                insertStmt.executeUpdate();
+
+
+                try (ResultSet generatedKeys = insertStmt.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        int generatedId = generatedKeys.getInt(1);
+                        return new ExchangeRatesDto(generatedId, baseCurrency, targetCurrency, rate);
+                    } else {
+                        throw new SQLException("Creating exchangeRates failed: no ID obtained.");
+                    }
                 }
             }
-
-            try (ResultSet rs = stmt2.executeQuery()) {
-                while (rs.next()) {
-                    targetCurrency = new Currency(
-                            rs.getInt("id"),
-                            rs.getString("code"),
-                            rs.getString("fullName"),
-                            rs.getString("sign"));
-                }
-            }
-
-            if (baseCurrency == null || targetCurrency == null) {
-                throw new SQLException("One or both currencies not found");
-            }
-
-            stmt3.setInt(1, baseCurrency.getId());
-            stmt3.setInt(2, targetCurrency.getId());
-            try (ResultSet rs = stmt3.executeQuery()) {
-                if (rs.next()) {
-                    throw new SQLException("Exchange rate pair already exists");
-                }
-            }
-
-            stmt4.setInt(1, baseCurrency.getId());
-            stmt4.setInt(2, targetCurrency.getId());
-            stmt4.setDouble(3, rate);
-            stmt4.executeUpdate();
         }
+    }
+
+
+        public ExchangeRatesDto updateExchangeRates (String baseCode, String targetCode,double rate) throws
+        ClassNotFoundException, SQLException {
+
+            Currency baseCurrency = null;
+            Currency targetCurrency = null;
+
+            String queryBaseСurrency = "SELECT * from currencies WHERE code = ?";
+            String queryTargetCurrency = "SELECT * from currencies WHERE code = ?";
+            String sqlUpdate = "UPDATE exchangeRates SET rate = ? WHERE BaseCurrencyId = ? AND TargetCurrencyId = ?";
+
+
+            try (Connection connection = ConnectionFactory.getConnection();
+                 PreparedStatement stmt1 = connection.prepareStatement(queryBaseСurrency);
+                 PreparedStatement stmt2 = connection.prepareStatement(queryTargetCurrency);
+                 PreparedStatement stmt3 = connection.prepareStatement(sqlUpdate)) {
+
+                stmt1.setString(1, baseCode);
+                stmt2.setString(1, targetCode);
+
+
+                try (ResultSet rs = stmt1.executeQuery()) {
+                    if (rs.next()) {
+                        baseCurrency = new Currency(
+                                rs.getInt("id"),
+                                rs.getString("code"),
+                                rs.getString("fullName"),
+                                rs.getString("sign"));
+                    }
+                }
+
+                try (ResultSet rs = stmt2.executeQuery()) {
+                    if (rs.next()) {
+                        targetCurrency = new Currency(
+                                rs.getInt("id"),
+                                rs.getString("code"),
+                                rs.getString("fullName"),
+                                rs.getString("sign"));
+                    }
+                }
+
+                if (baseCurrency == null || targetCurrency == null) {
+                    throw new SQLException("One or both currencies not found");
+                }
+
+                stmt3.setDouble(1, rate);
+                stmt3.setInt(2, baseCurrency.getId());
+                stmt3.setInt(3, targetCurrency.getId());
+                stmt3.executeUpdate();
+
+            }
             return getExchangeRatePair(baseCode, targetCode);
         }
 
 
-    public ExchangeRatesDto updateExchangeRates(String baseCode, String targetCode, double rate) throws ClassNotFoundException, SQLException {
+        private Currency findCurrency (Connection connection, String code, String sql) throws SQLException {
 
-        Currency baseCurrency = null;
-        Currency targetCurrency = null;
-
-        String queryBaseСurrency = "SELECT * from currencies WHERE code = ?";
-        String queryTargetCurrency = "SELECT * from currencies WHERE code = ?";
-        String sqlUpdate = "UPDATE exchangeRates SET rate = ? WHERE BaseCurrencyId = ? AND TargetCurrencyId = ?";
-
-
-        try(Connection connection = ConnectionFactory.getConnection();
-            PreparedStatement stmt1 = connection.prepareStatement(queryBaseСurrency);
-            PreparedStatement stmt2 = connection.prepareStatement(queryTargetCurrency);
-            PreparedStatement stmt3 = connection.prepareStatement(sqlUpdate)){
-
-            stmt1.setString(1, baseCode);
-            stmt2.setString(1, targetCode);
-
-
-            try (ResultSet rs = stmt1.executeQuery()) {
-                while (rs.next()) {
-                    baseCurrency = new Currency(
-                            rs.getInt("id"),
-                            rs.getString("code"),
-                            rs.getString("fullName"),
-                            rs.getString("sign"));
+            try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+                stmt.setString(1, code);
+                try (ResultSet rs = stmt.executeQuery()) {
+                    if (rs.next()) {
+                        return new Currency(
+                                rs.getInt("id"),
+                                rs.getString("code"),
+                                rs.getString("fullName"),
+                                rs.getString("sign")
+                        );
+                    }
                 }
             }
-
-            try (ResultSet rs = stmt2.executeQuery()) {
-                while (rs.next()) {
-                    targetCurrency = new Currency(
-                            rs.getInt("id"),
-                            rs.getString("code"),
-                            rs.getString("fullName"),
-                            rs.getString("sign"));
-                }
-            }
-
-            if (baseCurrency == null || targetCurrency == null) {
-                throw new SQLException("One or both currencies not found");
-            }
-
-            stmt3.setDouble(1, rate);
-            stmt3.setInt(2, baseCurrency.getId());
-            stmt3.setInt(3, targetCurrency.getId());
-            stmt3.executeUpdate();
-
+            return null;
         }
-        return getExchangeRatePair(baseCode, targetCode);
-    }
+
 }
-
-
 
 
 

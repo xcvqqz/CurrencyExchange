@@ -19,7 +19,7 @@ public class CurrencyDao {
         }
     }
 
-    public List<CurrencyDto> getAllCurrencies() throws ClassNotFoundException, SQLException {
+    public List<CurrencyDto> getAllCurrencies() throws  SQLException {
 
         List<CurrencyDto> result = new ArrayList<>();
 
@@ -27,7 +27,7 @@ public class CurrencyDao {
              Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery("SELECT * FROM currencies")) {
 
-            while (rs.next()) {
+            if (rs.next()) {
                 result.add(new CurrencyDto(
                         rs.getInt("id"),
                         rs.getString("code"),
@@ -104,9 +104,6 @@ public class CurrencyDao {
             }
         }
     }
-
-
-
 }
 
 
