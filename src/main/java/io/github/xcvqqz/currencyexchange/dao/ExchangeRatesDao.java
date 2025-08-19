@@ -155,59 +155,40 @@ public class ExchangeRatesDao {
     }
 
 
-        public ExchangeRatesDto updateExchangeRates (String baseCode, String targetCode,double rate) throws
-        ClassNotFoundException, SQLException {
+        public ExchangeRatesDto updateExchangeRates (String baseCode, String targetCode,double rate) throws SQLException {
 
-            Currency baseCurrency = null;
-            Currency targetCurrency = null;
 
-            String queryBaseСurrency = "SELECT * from currencies WHERE code = ?";
-            String queryTargetCurrency = "SELECT * from currencies WHERE code = ?";
+            String queryByCode = "SELECT * from currencies WHERE code = ?";
             String sqlUpdate = "UPDATE exchangeRates SET rate = ? WHERE BaseCurrencyId = ? AND TargetCurrencyId = ?";
 
 
-            try (Connection connection = ConnectionFactory.getConnection();
-                 PreparedStatement stmt1 = connection.prepareStatement(queryBaseСurrency);
-                 PreparedStatement stmt2 = connection.prepareStatement(queryTargetCurrency);
-                 PreparedStatement stmt3 = connection.prepareStatement(sqlUpdate)) {
+            try (Connection connection = ConnectionFactory.getConnection()){
 
-                stmt1.setString(1, baseCode);
-                stmt2.setString(1, targetCode);
+                Currency baseCurrency = findCurrency(connection, baseCode, queryByCode);
+                Currency targetCurrency = findCurrency(connection, targetCode, queryByCode);
 
-
-                try (ResultSet rs = stmt1.executeQuery()) {
-                    if (rs.next()) {
-                        baseCurrency = new Currency(
-                                rs.getInt("id"),
-                                rs.getString("code"),
-                                rs.getString("fullName"),
-                                rs.getString("sign"));
-                    }
-                }
-
-                try (ResultSet rs = stmt2.executeQuery()) {
-                    if (rs.next()) {
-                        targetCurrency = new Currency(
-                                rs.getInt("id"),
-                                rs.getString("code"),
-                                rs.getString("fullName"),
-                                rs.getString("sign"));
-                    }
-                }
+                try (PreparedStatement updateStmt = connection.prepareStatement(sqlUpdate)) {
 
                 if (baseCurrency == null || targetCurrency == null) {
                     throw new SQLException("One or both currencies not found");
                 }
 
-                stmt3.setDouble(1, rate);
-                stmt3.setInt(2, baseCurrency.getId());
-                stmt3.setInt(3, targetCurrency.getId());
-                stmt3.executeUpdate();
+                updateStmt.setDouble(1, rate);
+                updateStmt.setInt(2, baseCurrency.getId());
+                updateStmt.setInt(3, targetCurrency.getId());
+                updateStmt.executeUpdate();
 
+                try (ResultSet generatedKeys = updateStmt.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        int generatedId = generatedKeys.getInt(1);
+                        return new ExchangeRatesDto(generatedId, baseCurrency, targetCurrency, rate);
+                    } else {
+                        throw new SQLException("Creating exchangeRates failed: no ID obtained.");
+                    }
+                }
             }
-            return getExchangeRatePair(baseCode, targetCode);
         }
-
+}
 
         private Currency findCurrency (Connection connection, String code, String sql) throws SQLException {
 
@@ -226,7 +207,6 @@ public class ExchangeRatesDao {
             }
             return null;
         }
-
 }
 
 
