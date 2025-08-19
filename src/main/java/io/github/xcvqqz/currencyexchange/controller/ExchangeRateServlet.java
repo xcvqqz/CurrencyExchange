@@ -3,7 +3,6 @@ package io.github.xcvqqz.currencyexchange.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.xcvqqz.currencyexchange.dao.ExchangeRatesDao;
 import io.github.xcvqqz.currencyexchange.dto.ExchangeRatesDto;
-import io.github.xcvqqz.currencyexchange.entity.ExchangeRates;
 import io.github.xcvqqz.currencyexchange.service.ExchangeRatesService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
@@ -12,8 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 public class ExchangeRateServlet extends HttpServlet {
 
@@ -39,7 +37,7 @@ public class ExchangeRateServlet extends HttpServlet {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-        ExchangeRatesDto exchangeRate = null;
+        Optional<ExchangeRatesDto> exchangeRate = Optional.empty();
         String pathInfo = request.getPathInfo();
 
         if (pathInfo == null || pathInfo.length() != 7) {
@@ -66,7 +64,7 @@ public class ExchangeRateServlet extends HttpServlet {
 
         try {
             exchangeRate = exchangeRatesService.getExchangeRates(baseCode, targetCode);
-            if (exchangeRate == null) {
+            if (exchangeRate.isEmpty()) {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
                 response.getWriter().write("{\"error\": \"Exchange rate not found for " + baseCode + " to " + targetCode + "\"}");
             } else {

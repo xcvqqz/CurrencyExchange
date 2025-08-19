@@ -11,14 +11,6 @@ import java.util.Optional;
 
 public class CurrencyDao {
 
-    static {
-        try {
-            Class.forName("org.sqlite.JDBC"); // Загрузка драйвера при старте приложения
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException("JDBC Driver not found", e);
-        }
-    }
-
     public List<CurrencyDto> getAllCurrencies() throws  SQLException {
 
         List<CurrencyDto> result = new ArrayList<>();
@@ -27,7 +19,7 @@ public class CurrencyDao {
              Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery("SELECT * FROM currencies")) {
 
-            if (rs.next()) {
+            while (rs.next()) {
                 result.add(new CurrencyDto(
                         rs.getInt("id"),
                         rs.getString("code"),
@@ -49,7 +41,7 @@ public class CurrencyDao {
             stmt.setString(1, code);
             try (ResultSet rs = stmt.executeQuery()) {
 
-                if (rs.next()) {
+                while (rs.next()) {
                     result = Optional.of(new CurrencyDto(
                             rs.getInt("id"),
                             rs.getString("code"),

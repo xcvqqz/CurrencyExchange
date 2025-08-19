@@ -35,7 +35,7 @@ public class ExchangeRatesDao {
              Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
-            if (rs.next()) {
+            while (rs.next()) {
                 Currency BaseCurrency = new Currency(
                         rs.getInt("IdBaseCurrency"),
                         rs.getString("CodeBaseCurrency"),
@@ -82,7 +82,7 @@ public class ExchangeRatesDao {
             stmt.setString(2, targetCode);
             try (ResultSet rs = stmt.executeQuery()) {
 
-                if (rs.next()) {
+                while (rs.next()) {
                     baseCurrency = new Currency(
                             rs.getInt("IdBaseCurrency"),
                             rs.getString("CodeBaseCurrency"),
@@ -189,7 +189,6 @@ public class ExchangeRatesDao {
 }
 
         private Optional<Currency> findCurrency (Connection connection, String code, String sql) throws SQLException {
-
 
             Optional<Currency> result = Optional.empty();
             try (PreparedStatement stmt = connection.prepareStatement(sql)) {
