@@ -1,9 +1,7 @@
 package io.github.xcvqqz.currencyexchange.dao;
 
-import io.github.xcvqqz.currencyexchange.dto.CurrencyDto;
 import io.github.xcvqqz.currencyexchange.dto.ExchangeRatesDto;
 import io.github.xcvqqz.currencyexchange.entity.Currency;
-import io.github.xcvqqz.currencyexchange.entity.ExchangeRates;
 import io.github.xcvqqz.currencyexchange.util.ConnectionFactory;
 
 import java.sql.*;
@@ -118,26 +116,26 @@ public class ExchangeRatesDao {
 
         try (Connection connection = ConnectionFactory.getConnection()) {
 
-            Currency baseCurrency = findCurrency(connection, baseCode, queryByCode);
-            Currency targetCurrency = findCurrency(connection, targetCode, queryByCode);
+            Optional<Currency> baseCurrency = findCurrency(connection, baseCode, queryByCode);
+            Optional<Currency> targetCurrency = findCurrency(connection, targetCode, queryByCode);
 
             try (PreparedStatement checkStmt = connection.prepareStatement(checkPairSql);
                  PreparedStatement insertStmt = connection.prepareStatement(sqlExecuteUpdate);) {
 
-                if (baseCurrency == null || targetCurrency == null) {
+                if (baseCurrency.isEmpty() || targetCurrency.isEmpty()) {
                     throw new SQLException("One or both currencies not found");
                 }
 
-                checkStmt.setInt(1, baseCurrency.getId());
-                checkStmt.setInt(2, targetCurrency.getId());
+                checkStmt.setInt(1, baseCurrency.get().getId());
+                checkStmt.setInt(2, targetCurrency.get().getId());
                 try (ResultSet rs = checkStmt.executeQuery()) {
                     if (rs.next()) {
                         throw new SQLException("Exchange rate pair already exists");
                     }
                 }
 
-                insertStmt.setInt(1, baseCurrency.getId());
-                insertStmt.setInt(2, targetCurrency.getId());
+                insertStmt.setInt(1, baseCurrency.get().getId());
+                insertStmt.setInt(2, targetCurrency.get().getId());
                 insertStmt.setDouble(3, rate);
                 insertStmt.executeUpdate();
 
@@ -145,7 +143,7 @@ public class ExchangeRatesDao {
                 try (ResultSet generatedKeys = insertStmt.getGeneratedKeys()) {
                     if (generatedKeys.next()) {
                         int generatedId = generatedKeys.getInt(1);
-                        return new ExchangeRatesDto(generatedId, baseCurrency, targetCurrency, rate);
+                        return new ExchangeRatesDto(generatedId, baseCurrency.orElse(null), targetCurrency.orElse(null), rate);
                     } else {
                         throw new SQLException("Creating exchangeRates failed: no ID obtained.");
                     }
@@ -164,24 +162,24 @@ public class ExchangeRatesDao {
 
             try (Connection connection = ConnectionFactory.getConnection()){
 
-                Currency baseCurrency = findCurrency(connection, baseCode, queryByCode);
-                Currency targetCurrency = findCurrency(connection, targetCode, queryByCode);
+                Optional<Currency> baseCurrency = findCurrency(connection, baseCode, queryByCode);
+                Optional<Currency> targetCurrency = findCurrency(connection, targetCode, queryByCode);
 
                 try (PreparedStatement updateStmt = connection.prepareStatement(sqlUpdate)) {
 
-                if (baseCurrency == null || targetCurrency == null) {
+                if (baseCurrency.isEmpty() || targetCurrency.isEmpty()) {
                     throw new SQLException("One or both currencies not found");
                 }
 
                 updateStmt.setDouble(1, rate);
-                updateStmt.setInt(2, baseCurrency.getId());
-                updateStmt.setInt(3, targetCurrency.getId());
+                updateStmt.setInt(2, baseCurrency.get().getId());
+                updateStmt.setInt(3, targetCurrency.get().getId());
                 updateStmt.executeUpdate();
 
                 try (ResultSet generatedKeys = updateStmt.getGeneratedKeys()) {
                     if (generatedKeys.next()) {
                         int generatedId = generatedKeys.getInt(1);
-                        return new ExchangeRatesDto(generatedId, baseCurrency, targetCurrency, rate);
+                        return new ExchangeRatesDto(generatedId, baseCurrency.orElse(null), targetCurrency.orElse(null), rate);
                     } else {
                         throw new SQLException("Creating exchangeRates failed: no ID obtained.");
                     }
@@ -190,22 +188,24 @@ public class ExchangeRatesDao {
         }
 }
 
-        private Currency findCurrency (Connection connection, String code, String sql) throws SQLException {
+        private Optional<Currency> findCurrency (Connection connection, String code, String sql) throws SQLException {
 
+
+            Optional<Currency> result = Optional.empty();
             try (PreparedStatement stmt = connection.prepareStatement(sql)) {
                 stmt.setString(1, code);
                 try (ResultSet rs = stmt.executeQuery()) {
                     if (rs.next()) {
-                        return new Currency(
+                        result = Optional.of(new Currency(
                                 rs.getInt("id"),
                                 rs.getString("code"),
                                 rs.getString("fullName"),
                                 rs.getString("sign")
-                        );
+                        ));
                     }
                 }
             }
-            return null;
+            return result;
         }
 }
 
