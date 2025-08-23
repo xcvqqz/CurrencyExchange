@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Optional;
 
+import static io.github.xcvqqz.currencyexchange.util.Validator.isValid;
+
 public class ExchangeRateServlet extends HttpServlet {
 
 
@@ -50,17 +52,12 @@ public class ExchangeRateServlet extends HttpServlet {
         String targetCode = pathInfo.substring(4).toUpperCase();
 
 
-        if (!baseCode.matches("[A-Z]{3}") || !targetCode.matches("[A-Z]{3}")) {
+        if (!isValid(baseCode, targetCode)){
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             response.getWriter().write("{\"error\": \"Currency codes must be 3 uppercase letters\"}");
             return;
         }
 
-        if (baseCode == null || targetCode == null) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("{\"error\": \"Missing parameters: baseCode and targetCode are required\"}");
-            return;
-        }
 
         try {
             exchangeRate = exchangeRatesService.getExchangeRates(baseCode, targetCode);
@@ -82,7 +79,7 @@ public class ExchangeRateServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
 
         String path = request.getPathInfo();
-        ExchangeRatesDto exchangeRate = null;
+        ExchangeRatesDto exchangeRate;
 
         if (path == null || path.length() < 7) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -90,32 +87,12 @@ public class ExchangeRateServlet extends HttpServlet {
 
         String baseCode = path.substring(1, 4).toUpperCase();
         String targetCode = path.substring(4).toUpperCase();
+        Double rate = Double.parseDouble(request.getReader().readLine().substring(5));
 
 
-        if (!baseCode.matches("[A-Z]{3}") || !targetCode.matches("[A-Z]{3}")) {
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        }
-
-
-        String rateParam = request.getReader().readLine().substring(5);
-        if (rateParam == null || rateParam.trim().isEmpty()) {
+        if (!isValid(baseCode,targetCode,rate)) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("Параметр 'rate' обязателен");
-            return;
-        }
-
-        double rate;
-        try {
-            rate = Double.parseDouble(rateParam);
-        } catch (NumberFormatException e) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("Параметр 'rate' должен быть числом");
-            return;
-        }
-
-        if (rate < 0) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().write("Курс не может быть отрицательным");
+            response.getWriter().write("Incorrect baseCode, targetCode, or rate value entered.");
             return;
         }
 

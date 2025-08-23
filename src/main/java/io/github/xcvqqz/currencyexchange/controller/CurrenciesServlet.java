@@ -5,11 +5,14 @@ import java.sql.SQLException;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.xcvqqz.currencyexchange.dto.CurrencyDto;
 import io.github.xcvqqz.currencyexchange.dao.CurrencyDao;
+import io.github.xcvqqz.currencyexchange.dto.CurrencyDto;
+import io.github.xcvqqz.currencyexchange.entity.Currency;
 import io.github.xcvqqz.currencyexchange.service.CurrencyService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.*;
+
+import static io.github.xcvqqz.currencyexchange.util.Validator.isValid;
 
 
 public class CurrenciesServlet extends HttpServlet {
@@ -34,7 +37,7 @@ public class CurrenciesServlet extends HttpServlet {
 
 
     @Override
-    public void doPost(HttpServletRequest request, HttpServletResponse response)
+    public  void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         response.setContentType("response.setContentType(application/json");
@@ -45,9 +48,7 @@ public class CurrenciesServlet extends HttpServlet {
             String fullName = request.getParameter("fullName");
             String sign = request.getParameter("sign");
 
-            if (code == null || code.isEmpty() ||
-                    fullName == null || fullName.isEmpty() ||
-                    sign == null || sign.isEmpty()) {
+            if (!isValid(code, fullName, sign)) {
                 response.sendError(HttpServletResponse.SC_BAD_REQUEST,
                         "Missing required parameters: code, name or sign");
                 response.setStatus(500);

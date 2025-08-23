@@ -1,7 +1,7 @@
 package io.github.xcvqqz.currencyexchange.dao;
-
 import io.github.xcvqqz.currencyexchange.dto.ExchangeRatesDto;
 import io.github.xcvqqz.currencyexchange.entity.Currency;
+import io.github.xcvqqz.currencyexchange.entity.ExchangeRates;
 import io.github.xcvqqz.currencyexchange.util.ConnectionFactory;
 
 import java.sql.*;
@@ -11,13 +11,6 @@ import java.util.Optional;
 
 public class ExchangeRatesDao {
 
-    static {
-        try {
-            Class.forName("org.sqlite.JDBC");
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException("JDBC Driver not found", e);
-        }
-    }
 
     public List<ExchangeRatesDto> getAllExchangeRates() throws SQLException {
 
@@ -188,24 +181,24 @@ public class ExchangeRatesDao {
         }
 }
 
-        private Optional<Currency> findCurrency (Connection connection, String code, String sql) throws SQLException {
+    public static Optional<Currency> findCurrency (Connection connection, String code, String sql) throws SQLException {
 
-            Optional<Currency> result = Optional.empty();
-            try (PreparedStatement stmt = connection.prepareStatement(sql)) {
-                stmt.setString(1, code);
-                try (ResultSet rs = stmt.executeQuery()) {
-                    if (rs.next()) {
-                        result = Optional.of(new Currency(
-                                rs.getInt("id"),
-                                rs.getString("code"),
-                                rs.getString("fullName"),
-                                rs.getString("sign")
-                        ));
-                    }
+        Optional<Currency> result = Optional.empty();
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setString(1, code);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    result = Optional.of(new Currency(
+                            rs.getInt("id"),
+                            rs.getString("code"),
+                            rs.getString("fullName"),
+                            rs.getString("sign")
+                    ));
                 }
             }
-            return result;
         }
+        return result;
+    }
 }
 
 
