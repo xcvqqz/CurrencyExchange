@@ -1,7 +1,9 @@
 package io.github.xcvqqz.currencyexchange.dao;
 import io.github.xcvqqz.currencyexchange.dto.ExchangeRatesDto;
 import io.github.xcvqqz.currencyexchange.entity.Currency;
-import io.github.xcvqqz.currencyexchange.entity.ExchangeRates;
+import io.github.xcvqqz.currencyexchange.exception.EntityAlreadyExistException;
+import io.github.xcvqqz.currencyexchange.exception.DataBaseException;
+import io.github.xcvqqz.currencyexchange.exception.ExchangeRateNotFoundException;
 import io.github.xcvqqz.currencyexchange.util.ConnectionFactory;
 
 import java.sql.*;
@@ -12,7 +14,16 @@ import java.util.Optional;
 public class ExchangeRatesDao {
 
 
-    public List<ExchangeRatesDto> getAllExchangeRates() throws SQLException {
+    private static final String DB_ERROR_GET_ALL_EXCHANGE_RATES = "DatabaseError: Failed to fetch all exchange rates";
+    private static final String EXCHANGE_RATE_PAIR_NOT_FOUND = "Exchange rate pair not found.";
+    private static final String DB_ERROR_RETRIEVING_EXCHANGE_RATE = "Database error: Failed to retrieve the exchange rate.";
+    private static final String EXCHANGE_RATE_PAIR_ALREADY_EXISTS = "Error: This exchange rate pair already exists.";
+    private static final String DB_ERROR_CREATING_EXCHANGE_RATE = "Database error: Failed to create a new exchange rate.";
+    private static final String DB_ERROR_UPDATE_EXCHANGE_RATE = "Database error: Failed to update a exchange rate.";
+    private static final String EXCHANGE_RATE_PAIR_NOT_FOUND_FOR_UPDATE = "Exchange rate pair not found for update rate.";
+
+
+    public List<ExchangeRatesDto> getAllExchangeRates() {
 
         List<ExchangeRatesDto> result = new ArrayList<>();
         String sql = "SELECT " +
@@ -47,12 +58,19 @@ public class ExchangeRatesDao {
                         TargetCurrency,
                         rs.getDouble("Rate")));
             }
+        } catch (SQLException e) {
+            throw new DataBaseException(DB_ERROR_GET_ALL_EXCHANGE_RATES);
         }
+
+        if (result.isEmpty()) {
+            throw new ExchangeRateNotFoundException(EXCHANGE_RATE_PAIR_NOT_FOUND);
+        }
+
         return result;
     }
 
 
-    public Optional<ExchangeRatesDto> getExchangeRatePair(String baseCode, String targetCode) throws SQLException {
+    public Optional<ExchangeRatesDto> getExchangeRatePair(String baseCode, String targetCode) {
 
         Currency baseCurrency;
         Currency targetCurrency;
@@ -75,7 +93,7 @@ public class ExchangeRatesDao {
             stmt.setString(2, targetCode);
             try (ResultSet rs = stmt.executeQuery()) {
 
-                while (rs.next()) {
+                if (rs.next()) {
                     baseCurrency = new Currency(
                             rs.getInt("IdBaseCurrency"),
                             rs.getString("CodeBaseCurrency"),
@@ -88,42 +106,41 @@ public class ExchangeRatesDao {
                             rs.getString("FullNameTargetCurrency"),
                             rs.getString("SignTargetCurrency"));
 
-                    result = Optional.of(new ExchangeRatesDto(
+                  result = Optional.of(new ExchangeRatesDto(
                             rs.getInt("id"),
                             baseCurrency,
                             targetCurrency,
                             rs.getDouble("Rate")));
+                } else {
+                    throw new ExchangeRateNotFoundException(EXCHANGE_RATE_PAIR_NOT_FOUND);
                 }
             }
+        } catch (SQLException e) {
+            throw new DataBaseException(DB_ERROR_RETRIEVING_EXCHANGE_RATE);
         }
         return result;
     }
 
 
-    public ExchangeRatesDto createExchangeRates(String baseCode, String targetCode, double rate) throws SQLException {
+    public ExchangeRatesDto createExchangeRates(String baseCode, String targetCode, double rate) {
 
-        String queryByCode = "SELECT * from currencies WHERE code = ?";
-        String checkPairSql = "SELECT 1 FROM ExchangeRates WHERE baseCurrencyId = ? AND targetCurrencyId = ?";
+        String sqlQueryByCode = "SELECT * from currencies WHERE code = ?";
+        String checkExistSql = "SELECT 1 FROM ExchangeRates WHERE baseCurrencyId = ? AND targetCurrencyId = ?";
         String sqlExecuteUpdate = "INSERT INTO ExchangeRates (baseCurrencyId, targetCurrencyId, rate) VALUES (?, ?, ?)";
-
 
         try (Connection connection = ConnectionFactory.getConnection()) {
 
-            Optional<Currency> baseCurrency = findCurrency(connection, baseCode, queryByCode);
-            Optional<Currency> targetCurrency = findCurrency(connection, targetCode, queryByCode);
+            Optional<Currency> baseCurrency = findCurrency(connection, baseCode, sqlQueryByCode);
+            Optional<Currency> targetCurrency = findCurrency(connection, targetCode, sqlQueryByCode);
 
-            try (PreparedStatement checkStmt = connection.prepareStatement(checkPairSql);
-                 PreparedStatement insertStmt = connection.prepareStatement(sqlExecuteUpdate);) {
-
-                if (baseCurrency.isEmpty() || targetCurrency.isEmpty()) {
-                    throw new SQLException("One or both currencies not found");
-                }
+            try (PreparedStatement checkStmt = connection.prepareStatement(checkExistSql);
+                 PreparedStatement insertStmt = connection.prepareStatement(sqlExecuteUpdate,Statement.RETURN_GENERATED_KEYS);) {
 
                 checkStmt.setInt(1, baseCurrency.get().getId());
                 checkStmt.setInt(2, targetCurrency.get().getId());
                 try (ResultSet rs = checkStmt.executeQuery()) {
                     if (rs.next()) {
-                        throw new SQLException("Exchange rate pair already exists");
+                        throw new EntityAlreadyExistException(EXCHANGE_RATE_PAIR_ALREADY_EXISTS);
                     }
                 }
 
@@ -138,53 +155,56 @@ public class ExchangeRatesDao {
                         int generatedId = generatedKeys.getInt(1);
                         return new ExchangeRatesDto(generatedId, baseCurrency.orElse(null), targetCurrency.orElse(null), rate);
                     } else {
-                        throw new SQLException("Creating exchangeRates failed: no ID obtained.");
+                        throw new DataBaseException(DB_ERROR_CREATING_EXCHANGE_RATE);
                     }
                 }
             }
+        } catch (SQLException e) {
+            throw new DataBaseException( DB_ERROR_CREATING_EXCHANGE_RATE);
         }
     }
 
 
-        public ExchangeRatesDto updateExchangeRates (String baseCode, String targetCode,double rate) throws SQLException {
+        public ExchangeRatesDto updateExchangeRates (String baseCode, String targetCode,double rate) {
 
-
-            String queryByCode = "SELECT * from currencies WHERE code = ?";
+            String sqlQueryByCode = "SELECT * from currencies WHERE code = ?";
             String sqlUpdate = "UPDATE exchangeRates SET rate = ? WHERE BaseCurrencyId = ? AND TargetCurrencyId = ?";
-
+            String checkExistSql = "SELECT 1 FROM ExchangeRates WHERE baseCurrencyId = ? AND targetCurrencyId = ?";
+            Optional<Currency> baseCurrency =  Optional.empty();
+            Optional<Currency> targetCurrency =  Optional.empty();
 
             try (Connection connection = ConnectionFactory.getConnection()){
 
-                Optional<Currency> baseCurrency = findCurrency(connection, baseCode, queryByCode);
-                Optional<Currency> targetCurrency = findCurrency(connection, targetCode, queryByCode);
+                baseCurrency = findCurrency(connection, baseCode, sqlQueryByCode);
+                targetCurrency = findCurrency(connection, targetCode, sqlQueryByCode);
 
-                try (PreparedStatement updateStmt = connection.prepareStatement(sqlUpdate)) {
+                try (PreparedStatement updateStmt = connection.prepareStatement(sqlUpdate);
+                     PreparedStatement checkStmt = connection.prepareStatement(checkExistSql)){
 
-                if (baseCurrency.isEmpty() || targetCurrency.isEmpty()) {
-                    throw new SQLException("One or both currencies not found");
-                }
+                    checkStmt.setInt(1, baseCurrency.get().getId());
+                    checkStmt.setInt(2, targetCurrency.get().getId());
+                    try (ResultSet rs = checkStmt.executeQuery()) {
+                        if (!rs.next()) {
+                            throw new ExchangeRateNotFoundException(EXCHANGE_RATE_PAIR_NOT_FOUND_FOR_UPDATE);
+                        }
+                    }
 
                 updateStmt.setDouble(1, rate);
                 updateStmt.setInt(2, baseCurrency.get().getId());
                 updateStmt.setInt(3, targetCurrency.get().getId());
                 updateStmt.executeUpdate();
-
-                try (ResultSet generatedKeys = updateStmt.getGeneratedKeys()) {
-                    if (generatedKeys.next()) {
-                        int generatedId = generatedKeys.getInt(1);
-                        return new ExchangeRatesDto(generatedId, baseCurrency.orElse(null), targetCurrency.orElse(null), rate);
-                    } else {
-                        throw new SQLException("Creating exchangeRates failed: no ID obtained.");
-                    }
-                }
             }
+        } catch (SQLException e) {
+                throw new DataBaseException(DB_ERROR_UPDATE_EXCHANGE_RATE);
+            }
+            return new ExchangeRatesDto(0, baseCurrency.orElse(null),
+                    targetCurrency.orElse(null), rate);
         }
-}
 
-    public static Optional<Currency> findCurrency (Connection connection, String code, String sql) throws SQLException {
+    private static Optional<Currency> findCurrency (Connection connection, String code, String sqlQuery) throws SQLException {
 
         Optional<Currency> result = Optional.empty();
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (PreparedStatement stmt = connection.prepareStatement(sqlQuery)) {
             stmt.setString(1, code);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {

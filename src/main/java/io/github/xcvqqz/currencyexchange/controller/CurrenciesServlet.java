@@ -7,12 +7,11 @@ import java.util.List;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.xcvqqz.currencyexchange.dao.CurrencyDao;
 import io.github.xcvqqz.currencyexchange.dto.CurrencyDto;
-import io.github.xcvqqz.currencyexchange.entity.Currency;
 import io.github.xcvqqz.currencyexchange.service.CurrencyService;
+import io.github.xcvqqz.currencyexchange.util.Validator;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.*;
 
-import static io.github.xcvqqz.currencyexchange.util.Validator.isValid;
 
 
 public class CurrenciesServlet extends HttpServlet {
@@ -21,7 +20,7 @@ public class CurrenciesServlet extends HttpServlet {
     private final ObjectMapper mapper = new ObjectMapper();
 
     @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         response.setContentType("response.setContentType(application/json");
         response.setCharacterEncoding("UTF-8");
@@ -48,11 +47,7 @@ public class CurrenciesServlet extends HttpServlet {
             String fullName = request.getParameter("fullName");
             String sign = request.getParameter("sign");
 
-            if (!isValid(code, fullName, sign)) {
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST,
-                        "Missing required parameters: code, name or sign");
-                response.setStatus(500);
-            }
+          Validator.validate(code, fullName, sign);
 
         try {
             currency = currencyService.createCurrency(code, fullName, sign);

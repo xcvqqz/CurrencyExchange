@@ -3,7 +3,7 @@ package io.github.xcvqqz.currencyexchange.entity;
 public class ExchangeRates {
 
     private int id;
-    private Currency baseCurrency;
+    private io.github.xcvqqz.currencyexchange.entity.Currency baseCurrency;
     private Currency targetCurrency;
     private double rate;
 

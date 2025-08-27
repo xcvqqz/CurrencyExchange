@@ -6,13 +6,13 @@ import java.util.Map;
 import java.util.Optional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.xcvqqz.currencyexchange.dto.CurrencyDto;
 import io.github.xcvqqz.currencyexchange.entity.Currency;
 import io.github.xcvqqz.currencyexchange.dao.CurrencyDao;
 import io.github.xcvqqz.currencyexchange.service.CurrencyService;
+import io.github.xcvqqz.currencyexchange.util.Validator;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.*;
-
-import static io.github.xcvqqz.currencyexchange.util.Validator.isValid;
 
 
 public class CurrencyServlet extends HttpServlet {
@@ -30,10 +30,8 @@ public class CurrencyServlet extends HttpServlet {
         String path = request.getPathInfo();
         String code = path.substring(1);
 
-        if (!isValid(code)) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST,"Currency code parameter is missing");
-        }
+        Validator.validate(code);
+
 
         try {
             Optional<CurrencyDto> currencyOpt = currencyService.findByCode(code);
@@ -68,9 +66,7 @@ public class CurrencyServlet extends HttpServlet {
         String sign = request.getParameter("sign");
         int id = Integer.parseInt(request.getParameter("id"));
 
-        if(!isValid(code,fullName,sign)){
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        }
+        Validator.validate(code, fullName, sign);
 
         try {
             currency = currencyService.updateCurrency(new Currency(id, code, fullName, sign));

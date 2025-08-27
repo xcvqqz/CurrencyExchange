@@ -8,7 +8,7 @@ import static java.lang.Class.forName;
 
 public class ConnectionFactory {
 
-    private static final String DB_URL = "C:\\Users\\Ваня\\Desktop\\Java2\\3 проект\\CurrencyExchange\\DataBase\\exchange.db";
+    private static final String DB_URL = "jdbc:sqlite:C:\\Users\\Максим\\Desktop\\Java\\3 проект\\CurrencyExchange\\DataBase\\currency_exchange.db";
 
     static {
         try {

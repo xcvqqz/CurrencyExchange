@@ -1,6 +1,7 @@
 package io.github.xcvqqz.currencyexchange.service;
 
 
+import io.github.xcvqqz.currencyexchange.dto.CurrencyDto;
 import io.github.xcvqqz.currencyexchange.entity.Currency;
 import io.github.xcvqqz.currencyexchange.dao.CurrencyDao;
 
