@@ -1,16 +1,15 @@
 package io.github.xcvqqz.currencyexchange.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.xcvqqz.currencyexchange.dto.ExchangeRateDto;
 import io.github.xcvqqz.currencyexchange.service.ExchangeRatesService;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServlet;
+import io.github.xcvqqz.currencyexchange.util.Validator;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.List;
+
+import static jakarta.servlet.http.HttpServletResponse.SC_OK;
 
 public class ExchangeRatesServlet extends BasicServlet {
 
@@ -18,26 +17,23 @@ public class ExchangeRatesServlet extends BasicServlet {
 
 
     @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-        List<ExchangeRateDto> exchangeRates = exchangeRatesService.findAll();
-        mapper.writerWithDefaultPrettyPrinter().writeValue(response.getWriter(), exchangeRates);
+        List<ExchangeRateDto> exchangeRateDtosResponse = exchangeRatesService.findAll();
+        doResponse(response, SC_OK, exchangeRateDtosResponse);
     }
 
 
     @Override
-    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
-
-        ExchangeRateDto exchangeRates;
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         String baseCode = request.getParameter("baseCode");
         String targetCode = request.getParameter("targetCode");
         double rate = Double.parseDouble(request.getParameter("rate"));
+        Validator.validate(baseCode, targetCode, rate);
 
-
-        exchangeRates = exchangeRatesService.save(baseCode, targetCode, rate);
-        mapper.writerWithDefaultPrettyPrinter().writeValue(response.getWriter(), exchangeRates);
+        ExchangeRateDto exchangeRateDtosResponse = exchangeRatesService.save(baseCode, targetCode, rate);
+        doResponse(response, SC_OK, exchangeRateDtosResponse);
 
     }
 }

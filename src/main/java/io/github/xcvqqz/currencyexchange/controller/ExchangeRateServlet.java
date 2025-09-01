@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Optional;
 
+import static jakarta.servlet.http.HttpServletResponse.SC_OK;
+
 public class ExchangeRateServlet extends BasicServlet {
 
 
@@ -29,38 +31,33 @@ public class ExchangeRateServlet extends BasicServlet {
     }
 
     @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         String pathInfo = request.getPathInfo();
         Validator.pathInfoValidate(pathInfo);
 
         String baseCode = pathInfo.substring(1, 4);
         String targetCode = pathInfo.substring(4);
-
         Validator.validate(baseCode, targetCode);
 
-        Optional<ExchangeRateDto> exchangeRate = exchangeRatesService.getExchangeRatesPair(baseCode, targetCode);
-        mapper.writerWithDefaultPrettyPrinter().writeValue(response.getWriter(), exchangeRate);
+        ExchangeRateDto exchangeRateDtoResponse = exchangeRatesService.getExchangeRatesPair(baseCode, targetCode);
+
+        doResponse(response, SC_OK, exchangeRateDtoResponse);
     }
 
 
-    public void doPatch(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
+    public void doPatch(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         String path = request.getPathInfo();
-        ExchangeRateDto exchangeRate;
-
         Validator.pathInfoValidate(path);
 
         String baseCode = path.substring(1, 4).toUpperCase();
         String targetCode = path.substring(4).toUpperCase();
         Double rate = Double.parseDouble(request.getReader().readLine().substring(5));
-
         Validator.validate(baseCode, targetCode, rate);
 
-        exchangeRate = exchangeRatesService.update(baseCode, targetCode, rate);
-        mapper.writerWithDefaultPrettyPrinter().writeValue(response.getWriter(), exchangeRate);
+        ExchangeRateDto exchangeRateDtoResponse = exchangeRatesService.update(baseCode, targetCode, rate);
 
-        } 
+        doResponse(response, SC_OK, exchangeRateDtoResponse);
     }
+}

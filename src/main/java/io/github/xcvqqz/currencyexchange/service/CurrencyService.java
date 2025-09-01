@@ -11,21 +11,20 @@ import java.util.stream.Collectors;
 
 public class CurrencyService {
 
-    private JsonMapperUtil jsonMapper;
+
     private ModelMapperUtil modelMapper;
     private CurrencyDao currencyDao;
 
     public CurrencyService (){
         modelMapper = new ModelMapperUtil();
         currencyDao = new CurrencyDao();
-        jsonMapper = new JsonMapperUtil();
     }
 
     public List<CurrencyDto> findAll() {
         List<Currency> currencies = currencyDao.findAll();
 
         return currencies.stream()
-                .map(modelMapper::convertToDto).map(jsonMapper::convertCurrencyListToJson)
+                .map(modelMapper::convertToDto)
                 .collect(Collectors.toList());
     }
 

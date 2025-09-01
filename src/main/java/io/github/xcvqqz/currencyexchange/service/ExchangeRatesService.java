@@ -19,7 +19,7 @@ public class ExchangeRatesService {
         modelMapper = new ModelMapperUtil();
     }
 
-    public List<ExchangeRateDto> findAll() throws SQLException, ClassNotFoundException {
+    public List<ExchangeRateDto> findAll()  {
         List<ExchangeRate> exchangeRates = exchangeRatesDao.findAll();
 
         return exchangeRates.stream()
@@ -27,16 +27,16 @@ public class ExchangeRatesService {
                 .collect(Collectors.toList());
     }
 
-    public ExchangeRateDto getExchangeRatesPair(String baseCode, String targetCode) throws SQLException, ClassNotFoundException {
+    public ExchangeRateDto getExchangeRatesPair(String baseCode, String targetCode)  {
         ExchangeRate exchangeRate = exchangeRatesDao.getExchangeRatePair(baseCode, targetCode).orElseThrow();
         return modelMapper.convertToDto(exchangeRate);
     }
 
-    public ExchangeRateDto save(String baseCode, String targetCode, double rate) throws SQLException, ClassNotFoundException {
+    public ExchangeRateDto save(String baseCode, String targetCode, double rate) {
         return modelMapper.convertToDto(exchangeRatesDao.save(baseCode, targetCode, rate));
     }
 
-    public ExchangeRateDto update(String baseCode, String targetCode, double rate) throws SQLException, ClassNotFoundException {
+    public ExchangeRateDto update(String baseCode, String targetCode, double rate)  {
         return modelMapper.convertToDto(exchangeRatesDao.update(baseCode, targetCode, rate));
     }
 }

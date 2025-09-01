@@ -1,7 +1,6 @@
 package io.github.xcvqqz.currencyexchange.controller;
 
 import java.io.*;
-import java.sql.SQLException;
 import java.util.List;
 
 import io.github.xcvqqz.currencyexchange.dto.CurrencyDto;
