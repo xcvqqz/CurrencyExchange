@@ -43,7 +43,6 @@ public class ExceptionHandlingFilter implements Filter {
         catch(ValidationException e){
             sendError(httpResponse, e, SC_BAD_REQUEST);
         }
-
     }
 
     private void sendError(HttpServletResponse response, Exception e, int status) throws IOException {

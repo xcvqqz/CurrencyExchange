@@ -13,12 +13,10 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Optional;
 
-public class ExchangeRateServlet extends HttpServlet {
+public class ExchangeRateServlet extends BasicServlet {
 
 
     private final ExchangeRatesService exchangeRatesService = new ExchangeRatesService();
-    private final ObjectMapper mapper = new ObjectMapper();
-
 
     @Override
     protected void service(HttpServletRequest request, HttpServletResponse response)
@@ -32,12 +30,8 @@ public class ExchangeRateServlet extends HttpServlet {
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
 
-        Optional<ExchangeRateDto> exchangeRate = Optional.empty();
         String pathInfo = request.getPathInfo();
-
         Validator.pathInfoValidate(pathInfo);
 
         String baseCode = pathInfo.substring(1, 4);
@@ -45,18 +39,8 @@ public class ExchangeRateServlet extends HttpServlet {
 
         Validator.validate(baseCode, targetCode);
 
-        try {
-            exchangeRate = exchangeRatesService.getExchangeRates(baseCode, targetCode);
-            if (exchangeRate.isPresent()) {
-                mapper.writerWithDefaultPrettyPrinter().writeValue(response.getWriter(), exchangeRate.get());
-            } else {
-                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                response.getWriter().write("{\"error\": \"Exchange rate not found for " + baseCode + " to " + targetCode + "\"}");
-            }
-        } catch (ClassNotFoundException | SQLException e) {
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("{\"error\": \"Database error: " + e.getMessage() + "\"}");
-        }
+        Optional<ExchangeRateDto> exchangeRate = exchangeRatesService.getExchangeRatesPair(baseCode, targetCode);
+        mapper.writerWithDefaultPrettyPrinter().writeValue(response.getWriter(), exchangeRate);
     }
 
 
@@ -75,11 +59,8 @@ public class ExchangeRateServlet extends HttpServlet {
 
         Validator.validate(baseCode, targetCode, rate);
 
-            try {
-                 exchangeRate = exchangeRatesService.updateExchangeRates(baseCode, targetCode, rate);
-                mapper.writerWithDefaultPrettyPrinter().writeValue(response.getWriter(), exchangeRate);
-            } catch (SQLException | ClassNotFoundException | IOException | RuntimeException e) {
-                throw new RuntimeException(e);
-            }
+        exchangeRate = exchangeRatesService.update(baseCode, targetCode, rate);
+        mapper.writerWithDefaultPrettyPrinter().writeValue(response.getWriter(), exchangeRate);
+
         } 
     }

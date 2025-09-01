@@ -14,32 +14,28 @@ import io.github.xcvqqz.currencyexchange.util.Validator;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.*;
 
+import static jakarta.servlet.http.HttpServletResponse.SC_OK;
 
-public class CurrencyServlet extends HttpServlet {
 
+public class CurrencyServlet extends BasicServlet {
 
     private final CurrencyService currencyService = new CurrencyService();
-    private final ObjectMapper mapper = new ObjectMapper();
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         String path = request.getPathInfo();
         String code = path.substring(1);
 
         Validator.validate(code);
 
-        CurrencyDto currency = currencyService.findByCode(code);
-        mapper.writeValue(response.getWriter(), Map.of("error", "Internal server error"));
-
+        CurrencyDto currencyDtoResponse = currencyService.findByCode(code);
+        doResponse(response, SC_OK, currencyDtoResponse);
     }
 
 
     @Override
-    public void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-
-        CurrencyDto currency;
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         String code = request.getParameter("code");
         String fullName = request.getParameter("fullName");
@@ -48,7 +44,7 @@ public class CurrencyServlet extends HttpServlet {
 
         Validator.validate(code, fullName, sign);
 
-        currency = currencyService.update(new Currency(id, code, fullName, sign));
-        mapper.writerWithDefaultPrettyPrinter().writeValue(response.getWriter(), currency);
+        CurrencyDto currencyDtoResponse = currencyService.update(new Currency(id, code, fullName, sign));
+        doResponse(response, SC_OK, currencyDtoResponse);
     }
 }

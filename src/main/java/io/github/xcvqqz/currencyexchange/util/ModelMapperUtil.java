@@ -6,8 +6,6 @@ import io.github.xcvqqz.currencyexchange.entity.Currency;
 import io.github.xcvqqz.currencyexchange.entity.ExchangeRate;
 import org.modelmapper.ModelMapper;
 
-import java.util.Objects;
-
 public class ModelMapperUtil {
 
     private ModelMapper modelMapper;
@@ -17,10 +15,10 @@ public class ModelMapperUtil {
     }
 
     public CurrencyDto convertToDto(Currency currency){
-        return Objects.isNull(currency) ? null : modelMapper.map(currency, CurrencyDto.class);
+        return modelMapper.map(currency, CurrencyDto.class);
     }
 
     public ExchangeRateDto convertToDto(ExchangeRate exchangeRate){
-        return Objects.isNull(exchangeRate) ? null : modelMapper.map(exchangeRate, ExchangeRateDto.class);
+        return modelMapper.map(exchangeRate, ExchangeRateDto.class);
     }
 }

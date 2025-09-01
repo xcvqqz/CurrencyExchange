@@ -7,24 +7,25 @@ import io.github.xcvqqz.currencyexchange.dao.CurrencyDao;
 import io.github.xcvqqz.currencyexchange.util.ModelMapperUtil;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class CurrencyService {
 
+    private JsonMapperUtil jsonMapper;
     private ModelMapperUtil modelMapper;
     private CurrencyDao currencyDao;
 
     public CurrencyService (){
         modelMapper = new ModelMapperUtil();
         currencyDao = new CurrencyDao();
+        jsonMapper = new JsonMapperUtil();
     }
 
     public List<CurrencyDto> findAll() {
         List<Currency> currencies = currencyDao.findAll();
 
         return currencies.stream()
-                .map(modelMapper::convertToDto)
+                .map(modelMapper::convertToDto).map(jsonMapper::convertCurrencyListToJson)
                 .collect(Collectors.toList());
     }
 

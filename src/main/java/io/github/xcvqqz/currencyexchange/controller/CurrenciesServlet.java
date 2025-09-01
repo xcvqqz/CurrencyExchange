@@ -4,44 +4,37 @@ import java.io.*;
 import java.sql.SQLException;
 import java.util.List;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.xcvqqz.currencyexchange.dao.CurrencyDao;
 import io.github.xcvqqz.currencyexchange.dto.CurrencyDto;
 import io.github.xcvqqz.currencyexchange.service.CurrencyService;
 import io.github.xcvqqz.currencyexchange.util.Validator;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.*;
 
+import static jakarta.servlet.http.HttpServletResponse.SC_OK;
 
-public class CurrenciesServlet extends HttpServlet {
+public class CurrenciesServlet extends BasicServlet {
 
     private final CurrencyService currencyService = new CurrencyService();
-    private final ObjectMapper mapper = new ObjectMapper();
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-        List<CurrencyDto> currencies;
+        List<CurrencyDto> currencyDtosResponse = currencyService.findAll();
+        doResponse(response, SC_OK, currencyDtosResponse);
 
-        currencies = currencyService.findAll();
-        mapper.writerWithDefaultPrettyPrinter().writeValue(response.getWriter(), currencies);
     }
 
 
     @Override
-    public  void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    public  void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-        CurrencyDto currency;
+        String code = request.getParameter("code");
+        String fullName = request.getParameter("fullName");
+        String sign = request.getParameter("sign");
 
-            String code = request.getParameter("code");
-            String fullName = request.getParameter("fullName");
-            String sign = request.getParameter("sign");
+        Validator.validate(code, fullName, sign);
 
-          Validator.validate(code, fullName, sign);
-
-        currency = currencyService.save(code, fullName, sign);
-        mapper.writerWithDefaultPrettyPrinter().writeValue(response.getWriter(), currency);
+        CurrencyDto currencyDtoResponse = currencyService.save(code, fullName, sign);
+        doResponse(response, SC_OK, currencyDtoResponse);
         }
     }
 

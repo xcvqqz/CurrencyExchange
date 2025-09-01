@@ -12,25 +12,16 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
-public class ExchangeRatesServlet extends HttpServlet {
+public class ExchangeRatesServlet extends BasicServlet {
 
     private final ExchangeRatesService exchangeRatesService = new ExchangeRatesService();
-    private final ObjectMapper mapper = new ObjectMapper();
 
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-        response.setContentType("response.setContentType(application/json");
-        response.setCharacterEncoding("UTF-8");
-        List<ExchangeRateDto> exchangeRates;
-
-        try {
-            exchangeRates = exchangeRatesService.getAllExchangeRates();
-            mapper.writerWithDefaultPrettyPrinter().writeValue(response.getWriter(), exchangeRates);
-        } catch (ClassNotFoundException | SQLException e) {
-            throw new RuntimeException(e);
-        }
+        List<ExchangeRateDto> exchangeRates = exchangeRatesService.findAll();
+        mapper.writerWithDefaultPrettyPrinter().writeValue(response.getWriter(), exchangeRates);
     }
 
 
@@ -38,21 +29,15 @@ public class ExchangeRatesServlet extends HttpServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
 
-        response.setContentType("response.setContentType(application/json");
-        response.setCharacterEncoding("UTF-8");
         ExchangeRateDto exchangeRates;
-
 
         String baseCode = request.getParameter("baseCode");
         String targetCode = request.getParameter("targetCode");
         double rate = Double.parseDouble(request.getParameter("rate"));
 
 
-        try {
-            exchangeRates = exchangeRatesService.createExchangeRates(baseCode, targetCode, rate);
-            mapper.writerWithDefaultPrettyPrinter().writeValue(response.getWriter(), exchangeRates);
-        } catch (ClassNotFoundException | SQLException e) {
-            throw new RuntimeException(e);
-        }
+        exchangeRates = exchangeRatesService.save(baseCode, targetCode, rate);
+        mapper.writerWithDefaultPrettyPrinter().writeValue(response.getWriter(), exchangeRates);
+
     }
 }
