@@ -1,36 +1,42 @@
 package io.github.xcvqqz.currencyexchange.service;
 
-import io.github.xcvqqz.currencyexchange.dao.ExchangeRatesDao;
-import io.github.xcvqqz.currencyexchange.dto.ExchangeRatesDto;
-import io.github.xcvqqz.currencyexchange.entity.ExchangeRates;
+import io.github.xcvqqz.currencyexchange.dao.ExchangeRateDao;
+import io.github.xcvqqz.currencyexchange.dto.ExchangeRateDto;
+import io.github.xcvqqz.currencyexchange.entity.ExchangeRate;
+import io.github.xcvqqz.currencyexchange.util.ModelMapperUtil;
 
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class ExchangeRatesService {
 
+    private ExchangeRateDao exchangeRatesDao;
+    private ModelMapperUtil modelMapper;
 
-    private final ExchangeRatesDao exchangeRatesDao;
-
-    public ExchangeRatesService(ExchangeRatesDao exchangeRatesDao) {
-        this.exchangeRatesDao = exchangeRatesDao;
+    public ExchangeRatesService(){
+        exchangeRatesDao = new ExchangeRateDao();
+        modelMapper = new ModelMapperUtil();
     }
 
-    public List<ExchangeRatesDto> getAllExchangeRates() throws SQLException, ClassNotFoundException {
-        return exchangeRatesDao.getAllExchangeRates();
+    public List<ExchangeRateDto> findAll() throws SQLException, ClassNotFoundException {
+        List<ExchangeRate> exchangeRates = exchangeRatesDao.findAll();
+
+        return exchangeRates.stream()
+                .map(modelMapper::convertToDto)
+                .collect(Collectors.toList());
     }
 
-    public Optional<ExchangeRatesDto> getExchangeRates(String baseCode, String targetCode) throws SQLException, ClassNotFoundException {
-        return exchangeRatesDao.getExchangeRatePair(baseCode, targetCode);
+    public ExchangeRateDto getExchangeRatesPair(String baseCode, String targetCode) throws SQLException, ClassNotFoundException {
+        ExchangeRate exchangeRate = exchangeRatesDao.getExchangeRatePair(baseCode, targetCode).orElseThrow();
+        return modelMapper.convertToDto(exchangeRate);
     }
 
-    public ExchangeRatesDto createExchangeRates(String baseCode, String targetCode, double rate) throws SQLException, ClassNotFoundException {
-        return exchangeRatesDao.createExchangeRates(baseCode, targetCode, rate);
+    public ExchangeRateDto save(String baseCode, String targetCode, double rate) throws SQLException, ClassNotFoundException {
+        return modelMapper.convertToDto(exchangeRatesDao.save(baseCode, targetCode, rate));
     }
 
-    public ExchangeRatesDto updateExchangeRates(String baseCode, String targetCode, double rate) throws SQLException, ClassNotFoundException {
-        return exchangeRatesDao.updateExchangeRates(baseCode, targetCode, rate);
+    public ExchangeRateDto update(String baseCode, String targetCode, double rate) throws SQLException, ClassNotFoundException {
+        return modelMapper.convertToDto(exchangeRatesDao.update(baseCode, targetCode, rate));
     }
-
 }

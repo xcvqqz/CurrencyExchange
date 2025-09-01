@@ -1,10 +1,7 @@
 package io.github.xcvqqz.currencyexchange.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.xcvqqz.currencyexchange.dao.ExchangeRatesDao;
-import io.github.xcvqqz.currencyexchange.dto.ExchangeRatesDto;
-import io.github.xcvqqz.currencyexchange.entity.Currency;
-import io.github.xcvqqz.currencyexchange.entity.ExchangeRates;
+import io.github.xcvqqz.currencyexchange.dto.ExchangeRateDto;
 import io.github.xcvqqz.currencyexchange.service.ExchangeRatesService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
@@ -14,11 +11,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Optional;
 
 public class ExchangeRatesServlet extends HttpServlet {
 
-    private final ExchangeRatesService exchangeRatesService = new ExchangeRatesService(new ExchangeRatesDao());
+    private final ExchangeRatesService exchangeRatesService = new ExchangeRatesService();
     private final ObjectMapper mapper = new ObjectMapper();
 
 
@@ -27,7 +23,7 @@ public class ExchangeRatesServlet extends HttpServlet {
 
         response.setContentType("response.setContentType(application/json");
         response.setCharacterEncoding("UTF-8");
-        List<ExchangeRatesDto> exchangeRates;
+        List<ExchangeRateDto> exchangeRates;
 
         try {
             exchangeRates = exchangeRatesService.getAllExchangeRates();
@@ -44,7 +40,7 @@ public class ExchangeRatesServlet extends HttpServlet {
 
         response.setContentType("response.setContentType(application/json");
         response.setCharacterEncoding("UTF-8");
-        ExchangeRatesDto exchangeRates;
+        ExchangeRateDto exchangeRates;
 
 
         String baseCode = request.getParameter("baseCode");

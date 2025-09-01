@@ -1,8 +1,7 @@
 package io.github.xcvqqz.currencyexchange.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.xcvqqz.currencyexchange.dao.ExchangeRatesDao;
-import io.github.xcvqqz.currencyexchange.dto.ExchangeRatesDto;
+import io.github.xcvqqz.currencyexchange.dto.ExchangeRateDto;
 import io.github.xcvqqz.currencyexchange.service.ExchangeRatesService;
 import io.github.xcvqqz.currencyexchange.util.Validator;
 import jakarta.servlet.ServletException;
@@ -17,7 +16,7 @@ import java.util.Optional;
 public class ExchangeRateServlet extends HttpServlet {
 
 
-    private final ExchangeRatesService exchangeRatesService = new ExchangeRatesService(new ExchangeRatesDao());
+    private final ExchangeRatesService exchangeRatesService = new ExchangeRatesService();
     private final ObjectMapper mapper = new ObjectMapper();
 
 
@@ -36,7 +35,7 @@ public class ExchangeRateServlet extends HttpServlet {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-        Optional<ExchangeRatesDto> exchangeRate = Optional.empty();
+        Optional<ExchangeRateDto> exchangeRate = Optional.empty();
         String pathInfo = request.getPathInfo();
 
         Validator.pathInfoValidate(pathInfo);
@@ -66,7 +65,7 @@ public class ExchangeRateServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
 
         String path = request.getPathInfo();
-        ExchangeRatesDto exchangeRate;
+        ExchangeRateDto exchangeRate;
 
         Validator.pathInfoValidate(path);
 

@@ -1,6 +1,6 @@
 package io.github.xcvqqz.currencyexchange.entity;
 
-public class ExchangeRates {
+public class ExchangeRate {
 
     private int id;
     private io.github.xcvqqz.currencyexchange.entity.Currency baseCurrency;
@@ -8,7 +8,7 @@ public class ExchangeRates {
     private double rate;
 
 
-    public ExchangeRates(int id, Currency baseCurrency, Currency targetCurrency, double rate) {
+    public ExchangeRate(int id, Currency baseCurrency, Currency targetCurrency, double rate) {
         this.id = id;
         this.baseCurrency = baseCurrency;
         this.targetCurrency = targetCurrency;

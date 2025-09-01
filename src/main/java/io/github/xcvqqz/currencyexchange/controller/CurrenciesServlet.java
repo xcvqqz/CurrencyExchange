@@ -13,25 +13,18 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.*;
 
 
-
 public class CurrenciesServlet extends HttpServlet {
 
-    private final CurrencyService currencyService = new CurrencyService(new CurrencyDao());
+    private final CurrencyService currencyService = new CurrencyService();
     private final ObjectMapper mapper = new ObjectMapper();
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-        response.setContentType("response.setContentType(application/json");
-        response.setCharacterEncoding("UTF-8");
         List<CurrencyDto> currencies;
 
-        try {
-            currencies = currencyService.getAllCurrencies();
-            mapper.writerWithDefaultPrettyPrinter().writeValue(response.getWriter(), currencies);
-        } catch (ClassNotFoundException | SQLException e) {
-            throw new RuntimeException(e);
-        }
+        currencies = currencyService.findAll();
+        mapper.writerWithDefaultPrettyPrinter().writeValue(response.getWriter(), currencies);
     }
 
 
@@ -39,8 +32,6 @@ public class CurrenciesServlet extends HttpServlet {
     public  void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        response.setContentType("response.setContentType(application/json");
-        response.setCharacterEncoding("UTF-8");
         CurrencyDto currency;
 
             String code = request.getParameter("code");
@@ -49,11 +40,7 @@ public class CurrenciesServlet extends HttpServlet {
 
           Validator.validate(code, fullName, sign);
 
-        try {
-            currency = currencyService.createCurrency(code, fullName, sign);
-        } catch (SQLException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+        currency = currencyService.save(code, fullName, sign);
         mapper.writerWithDefaultPrettyPrinter().writeValue(response.getWriter(), currency);
         }
     }

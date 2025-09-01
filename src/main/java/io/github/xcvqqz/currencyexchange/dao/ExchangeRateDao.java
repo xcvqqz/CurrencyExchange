@@ -1,6 +1,6 @@
 package io.github.xcvqqz.currencyexchange.dao;
-import io.github.xcvqqz.currencyexchange.dto.ExchangeRatesDto;
 import io.github.xcvqqz.currencyexchange.entity.Currency;
+import io.github.xcvqqz.currencyexchange.entity.ExchangeRate;
 import io.github.xcvqqz.currencyexchange.exception.EntityAlreadyExistException;
 import io.github.xcvqqz.currencyexchange.exception.DataBaseException;
 import io.github.xcvqqz.currencyexchange.exception.ExchangeRateNotFoundException;
@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class ExchangeRatesDao {
+public class ExchangeRateDao {
 
 
     private static final String DB_ERROR_GET_ALL_EXCHANGE_RATES = "DatabaseError: Failed to fetch all exchange rates";
@@ -23,9 +23,9 @@ public class ExchangeRatesDao {
     private static final String EXCHANGE_RATE_PAIR_NOT_FOUND_FOR_UPDATE = "Exchange rate pair not found for update rate.";
 
 
-    public List<ExchangeRatesDto> getAllExchangeRates() {
+    public List<ExchangeRate> findAll() {
 
-        List<ExchangeRatesDto> result = new ArrayList<>();
+        List<ExchangeRate> result = new ArrayList<>();
         String sql = "SELECT " +
                 "er.id, " +
                 "base.id AS IdBaseCurrency, " + "base.code AS CodeBaseCurrency, " + "base.fullName AS FullNameBaseCurrency, " + "base.sign AS SignBaseCurrency, " +
@@ -52,7 +52,7 @@ public class ExchangeRatesDao {
                         rs.getString("FullNameTargetCurrency"),
                         rs.getString("SignTargetCurrency"));
 
-                result.add(new ExchangeRatesDto(
+                result.add(new ExchangeRate(
                         rs.getInt("id"),
                         BaseCurrency,
                         TargetCurrency,
@@ -70,11 +70,11 @@ public class ExchangeRatesDao {
     }
 
 
-    public Optional<ExchangeRatesDto> getExchangeRatePair(String baseCode, String targetCode) {
+    public Optional<ExchangeRate> getExchangeRatePair(String baseCode, String targetCode) {
 
         Currency baseCurrency;
         Currency targetCurrency;
-        Optional<ExchangeRatesDto> result = Optional.empty();
+        Optional<ExchangeRate> result;
 
         String sql = "SELECT " +
                 "er.id, " +
@@ -106,7 +106,7 @@ public class ExchangeRatesDao {
                             rs.getString("FullNameTargetCurrency"),
                             rs.getString("SignTargetCurrency"));
 
-                  result = Optional.of(new ExchangeRatesDto(
+                  result = Optional.of(new ExchangeRate(
                             rs.getInt("id"),
                             baseCurrency,
                             targetCurrency,
@@ -122,16 +122,19 @@ public class ExchangeRatesDao {
     }
 
 
-    public ExchangeRatesDto createExchangeRates(String baseCode, String targetCode, double rate) {
+    public ExchangeRate save (String baseCode, String targetCode, double rate) {
 
         String sqlQueryByCode = "SELECT * from currencies WHERE code = ?";
         String checkExistSql = "SELECT 1 FROM ExchangeRates WHERE baseCurrencyId = ? AND targetCurrencyId = ?";
         String sqlExecuteUpdate = "INSERT INTO ExchangeRates (baseCurrencyId, targetCurrencyId, rate) VALUES (?, ?, ?)";
+        Optional<Currency> baseCurrency;
+        Optional<Currency> targetCurrency;
+
 
         try (Connection connection = ConnectionFactory.getConnection()) {
 
-            Optional<Currency> baseCurrency = findCurrency(connection, baseCode, sqlQueryByCode);
-            Optional<Currency> targetCurrency = findCurrency(connection, targetCode, sqlQueryByCode);
+            baseCurrency = findCurrency(connection, baseCode, sqlQueryByCode);
+            targetCurrency = findCurrency(connection, targetCode, sqlQueryByCode);
 
             try (PreparedStatement checkStmt = connection.prepareStatement(checkExistSql);
                  PreparedStatement insertStmt = connection.prepareStatement(sqlExecuteUpdate,Statement.RETURN_GENERATED_KEYS);) {
@@ -149,37 +152,36 @@ public class ExchangeRatesDao {
                 insertStmt.setDouble(3, rate);
                 insertStmt.executeUpdate();
 
-
                 try (ResultSet generatedKeys = insertStmt.getGeneratedKeys()) {
                     if (generatedKeys.next()) {
                         int generatedId = generatedKeys.getInt(1);
-                        return new ExchangeRatesDto(generatedId, baseCurrency.orElse(null), targetCurrency.orElse(null), rate);
+                        return new ExchangeRate(generatedId, baseCurrency.orElse(null), targetCurrency.orElse(null), rate);
                     } else {
                         throw new DataBaseException(DB_ERROR_CREATING_EXCHANGE_RATE);
                     }
                 }
             }
         } catch (SQLException e) {
-            throw new DataBaseException( DB_ERROR_CREATING_EXCHANGE_RATE);
+            throw new DataBaseException(DB_ERROR_CREATING_EXCHANGE_RATE);
         }
     }
 
 
-        public ExchangeRatesDto updateExchangeRates (String baseCode, String targetCode,double rate) {
+        public ExchangeRate update (String baseCode, String targetCode, double rate) {
 
             String sqlQueryByCode = "SELECT * from currencies WHERE code = ?";
             String sqlUpdate = "UPDATE exchangeRates SET rate = ? WHERE BaseCurrencyId = ? AND TargetCurrencyId = ?";
             String checkExistSql = "SELECT 1 FROM ExchangeRates WHERE baseCurrencyId = ? AND targetCurrencyId = ?";
-            Optional<Currency> baseCurrency =  Optional.empty();
-            Optional<Currency> targetCurrency =  Optional.empty();
+            Optional<Currency> baseCurrency;
+            Optional<Currency> targetCurrency;
 
             try (Connection connection = ConnectionFactory.getConnection()){
 
                 baseCurrency = findCurrency(connection, baseCode, sqlQueryByCode);
                 targetCurrency = findCurrency(connection, targetCode, sqlQueryByCode);
 
-                try (PreparedStatement updateStmt = connection.prepareStatement(sqlUpdate);
-                     PreparedStatement checkStmt = connection.prepareStatement(checkExistSql)){
+                try (PreparedStatement checkStmt = connection.prepareStatement(checkExistSql);
+                     PreparedStatement updateStmt = connection.prepareStatement(sqlUpdate)){
 
                     checkStmt.setInt(1, baseCurrency.get().getId());
                     checkStmt.setInt(2, targetCurrency.get().getId());
@@ -197,7 +199,7 @@ public class ExchangeRatesDao {
         } catch (SQLException e) {
                 throw new DataBaseException(DB_ERROR_UPDATE_EXCHANGE_RATE);
             }
-            return new ExchangeRatesDto(0, baseCurrency.orElse(null),
+            return new ExchangeRate(0, baseCurrency.orElse(null),
                     targetCurrency.orElse(null), rate);
         }
 

@@ -1,7 +1,6 @@
 package io.github.xcvqqz.currencyexchange.dao;
 
 
-import io.github.xcvqqz.currencyexchange.dto.CurrencyDto;
 import io.github.xcvqqz.currencyexchange.entity.Currency;
 import io.github.xcvqqz.currencyexchange.exception.CurrencyNotFoundException;
 import io.github.xcvqqz.currencyexchange.exception.DataBaseException;
@@ -24,18 +23,17 @@ public class CurrencyDao {
     private static final String DB_ERROR_CURRENCY_NOT_FOUND = "Currency with this code was not found";
 
 
-    public List<CurrencyDto> getAllCurrencies() {
+    public List<Currency> findAll() {
 
         String sqlQuery = "SELECT * FROM currencies";
-        List<CurrencyDto> result = new ArrayList<>();
-
+        List<Currency> result = new ArrayList<>();
 
         try (Connection connection = ConnectionFactory.getConnection();
              Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(sqlQuery)) {
 
             while (rs.next()) {
-                result.add(new CurrencyDto(
+                result.add(new Currency(
                         rs.getInt("id"),
                         rs.getString("code"),
                         rs.getString("fullName"),
@@ -48,10 +46,10 @@ public class CurrencyDao {
         return result;
     }
 
-    public Optional<CurrencyDto> findByCode(String code) {
+    public Optional<Currency> findByCode(String code) {
 
         String sqlQuery = "SELECT * FROM currencies WHERE code = ?";
-        Optional<CurrencyDto> result = Optional.empty();
+        Optional<Currency> result = Optional.empty();
 
         try (Connection connection = ConnectionFactory.getConnection();
              PreparedStatement stmt = connection.prepareStatement(sqlQuery)) {
@@ -59,7 +57,7 @@ public class CurrencyDao {
             try (ResultSet rs = stmt.executeQuery()) {
 
                 if (rs.next()) {
-                    result = Optional.of(new CurrencyDto(
+                    result = Optional.of(new Currency(
                             rs.getInt("id"),
                             rs.getString("code"),
                             rs.getString("fullName"),
@@ -75,7 +73,7 @@ public class CurrencyDao {
     }
 
 
-    public CurrencyDto updateCurrency(Currency currency){
+    public Currency update(Currency currency){
 
         String checkExistSql = "SELECT id FROM currencies WHERE code = ? AND id != ?";
         String sqlQuery = "UPDATE currencies SET code = ?, fullName = ?, sign = ? WHERE id = ?";
@@ -103,7 +101,7 @@ public class CurrencyDao {
                 throw new CurrencyNotFoundException(DB_ERROR_CURRENCY_NOT_FOUND);
             }
 
-            return new CurrencyDto(currency.getId(),
+            return new Currency(currency.getId(),
                     currency.getCode(),
                     currency.getFullName(),
                     currency.getSign());
@@ -113,7 +111,7 @@ public class CurrencyDao {
         }
     }
 
-    public CurrencyDto createCurrency(String code, String fullName, String sign) {
+    public Currency save(String code, String fullName, String sign) {
 
         String sqlQuery = "INSERT INTO currencies (code, fullName, sign) VALUES (?, ?, ?)";
         String checkExistSql = "SELECT 1 FROM currencies WHERE code = ? AND fullName = ? AND sign = ?";
@@ -140,7 +138,7 @@ public class CurrencyDao {
             try (ResultSet generatedKeys = insertStmt.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
                     int generatedId = generatedKeys.getInt(1);
-                    return new CurrencyDto(generatedId, code, fullName, sign);
+                    return new Currency(generatedId, code, fullName, sign);
                 } else {
                     throw new DataBaseException(DB_ERROR_CREATE_CURRENCY_ONE);
                 }

@@ -4,33 +4,40 @@ package io.github.xcvqqz.currencyexchange.service;
 import io.github.xcvqqz.currencyexchange.dto.CurrencyDto;
 import io.github.xcvqqz.currencyexchange.entity.Currency;
 import io.github.xcvqqz.currencyexchange.dao.CurrencyDao;
+import io.github.xcvqqz.currencyexchange.util.ModelMapperUtil;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class CurrencyService {
 
+    private ModelMapperUtil modelMapper;
     private CurrencyDao currencyDao;
 
-    public CurrencyService(CurrencyDao currencyDao) {
-        this.currencyDao = currencyDao;
+    public CurrencyService (){
+        modelMapper = new ModelMapperUtil();
+        currencyDao = new CurrencyDao();
     }
 
-    public List<CurrencyDto> getAllCurrencies() throws ClassNotFoundException, SQLException {
-        return currencyDao.getAllCurrencies();
+    public List<CurrencyDto> findAll() {
+        List<Currency> currencies = currencyDao.findAll();
+
+        return currencies.stream()
+                .map(modelMapper::convertToDto)
+                .collect(Collectors.toList());
     }
 
-    public Optional<CurrencyDto> findByCode(String code) throws SQLException, ClassNotFoundException {
-        return currencyDao.findByCode(code);
+    public CurrencyDto findByCode(String code) {
+        Currency currency = currencyDao.findByCode(code).orElseThrow();
+        return modelMapper.convertToDto(currency);
     }
 
-    public CurrencyDto updateCurrency(Currency currency) throws SQLException, ClassNotFoundException {
-        return currencyDao.updateCurrency(currency);
+    public CurrencyDto update(Currency currency) {
+        return modelMapper.convertToDto(currencyDao.update(currency));
     }
 
-    public CurrencyDto createCurrency(String code, String fullName, String sign) throws SQLException, ClassNotFoundException {
-        return currencyDao.createCurrency(code, fullName, sign);
+    public CurrencyDto save(String code, String fullName, String sign) {
+        return modelMapper.convertToDto(currencyDao.save(code, fullName, sign));
     }
-
 }

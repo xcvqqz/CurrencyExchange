@@ -18,38 +18,20 @@ import jakarta.servlet.http.*;
 public class CurrencyServlet extends HttpServlet {
 
 
-    private final CurrencyService currencyService = new CurrencyService(new CurrencyDao());
+    private final CurrencyService currencyService = new CurrencyService();
     private final ObjectMapper mapper = new ObjectMapper();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
 
         String path = request.getPathInfo();
         String code = path.substring(1);
 
         Validator.validate(code);
 
+        CurrencyDto currency = currencyService.findByCode(code);
+        mapper.writeValue(response.getWriter(), Map.of("error", "Internal server error"));
 
-        try {
-            Optional<CurrencyDto> currencyOpt = currencyService.findByCode(code);
-
-            if (currencyOpt.isPresent()) {
-                response.setStatus(HttpServletResponse.SC_OK);
-                mapper.writerWithDefaultPrettyPrinter().writeValue(response.getWriter(), currencyOpt.get());
-            } else {
-                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                mapper.writeValue(response.getWriter(), Map.of("error", "Currency with code '" + code + "' not found"));
-            }
-        } catch (SQLException | ClassNotFoundException e) {
-            // Логируем ошибку (если есть логгер)
-            // logger.error("Database error while fetching currency: " + code, e);
-
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            mapper.writeValue(response.getWriter(), Map.of("error", "Internal server error"));
-        }
     }
 
 
@@ -57,8 +39,6 @@ public class CurrencyServlet extends HttpServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        response.setContentType("response.setContentType(application/json");
-        response.setCharacterEncoding("UTF-8");
         CurrencyDto currency;
 
         String code = request.getParameter("code");
@@ -68,12 +48,7 @@ public class CurrencyServlet extends HttpServlet {
 
         Validator.validate(code, fullName, sign);
 
-        try {
-            currency = currencyService.updateCurrency(new Currency(id, code, fullName, sign));
-            mapper.writerWithDefaultPrettyPrinter().writeValue(response.getWriter(), currency);
-        } catch (SQLException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-
+        currency = currencyService.update(new Currency(id, code, fullName, sign));
+        mapper.writerWithDefaultPrettyPrinter().writeValue(response.getWriter(), currency);
     }
 }
