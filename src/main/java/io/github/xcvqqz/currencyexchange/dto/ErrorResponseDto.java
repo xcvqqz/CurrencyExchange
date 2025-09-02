@@ -1,5 +1,3 @@
 package io.github.xcvqqz.currencyexchange.dto;
 
-public record ErrorResponseDto(
-        String message)
-{}
+public record ErrorResponseDto(String message) {}

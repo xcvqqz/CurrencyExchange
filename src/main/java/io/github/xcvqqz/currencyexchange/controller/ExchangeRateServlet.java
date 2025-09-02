@@ -1,24 +1,21 @@
 package io.github.xcvqqz.currencyexchange.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.xcvqqz.currencyexchange.dto.ExchangeRateDto;
-import io.github.xcvqqz.currencyexchange.service.ExchangeRatesService;
+import io.github.xcvqqz.currencyexchange.service.ExchangeRateService;
 import io.github.xcvqqz.currencyexchange.util.Validator;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.sql.SQLException;
-import java.util.Optional;
+import java.math.BigDecimal;
 
 import static jakarta.servlet.http.HttpServletResponse.SC_OK;
 
 public class ExchangeRateServlet extends BasicServlet {
 
 
-    private final ExchangeRatesService exchangeRatesService = new ExchangeRatesService();
+    private final ExchangeRateService exchangeRatesService = new ExchangeRateService();
 
     @Override
     protected void service(HttpServletRequest request, HttpServletResponse response)
@@ -53,7 +50,9 @@ public class ExchangeRateServlet extends BasicServlet {
 
         String baseCode = path.substring(1, 4).toUpperCase();
         String targetCode = path.substring(4).toUpperCase();
-        Double rate = Double.parseDouble(request.getReader().readLine().substring(5));
+        String rateParam = request.getReader().readLine().substring(5);
+        BigDecimal rate = new BigDecimal(rateParam);
+
         Validator.validate(baseCode, targetCode, rate);
 
         ExchangeRateDto exchangeRateDtoResponse = exchangeRatesService.update(baseCode, targetCode, rate);

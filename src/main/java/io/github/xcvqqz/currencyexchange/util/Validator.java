@@ -3,6 +3,7 @@ package io.github.xcvqqz.currencyexchange.util;
 import io.github.xcvqqz.currencyexchange.exception.ValidationException;
 import jakarta.servlet.http.HttpServletResponse;
 
+import java.math.BigDecimal;
 import java.util.regex.Pattern;
 
 public class Validator {
@@ -44,12 +45,12 @@ public class Validator {
         }
     }
 
-    public static void validate(String baseCode, String targetCode, double rate){
+    public static void validate(String baseCode, String targetCode, BigDecimal rate){
         baseCode.toUpperCase().trim();
         targetCode.toUpperCase().trim();
         if      ((baseCode == null || !baseCode.matches(ISO_4217)) ||
                 (targetCode == null || !targetCode.matches(ISO_4217)) ||
-                (rate < 0)){
+                (rate.compareTo(BigDecimal.ZERO) <= 0)){
             throw new ValidationException(String.format(INVALID_EXCHANGE_RATE_INPUT_MESSAGE, baseCode, targetCode, rate));
         }
     }

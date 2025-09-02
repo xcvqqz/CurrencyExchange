@@ -6,6 +6,7 @@ import io.github.xcvqqz.currencyexchange.exception.DataBaseException;
 import io.github.xcvqqz.currencyexchange.exception.ExchangeRateNotFoundException;
 import io.github.xcvqqz.currencyexchange.util.ConnectionFactory;
 
+import java.math.BigDecimal;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,7 +57,7 @@ public class ExchangeRateDao {
                         rs.getInt("id"),
                         BaseCurrency,
                         TargetCurrency,
-                        rs.getDouble("Rate")));
+                        rs.getBigDecimal("Rate")));
             }
         } catch (SQLException e) {
             throw new DataBaseException(DB_ERROR_GET_ALL_EXCHANGE_RATES);
@@ -110,7 +111,7 @@ public class ExchangeRateDao {
                             rs.getInt("id"),
                             baseCurrency,
                             targetCurrency,
-                            rs.getDouble("Rate")));
+                            rs.getBigDecimal("Rate")));
                 } else {
                     throw new ExchangeRateNotFoundException(EXCHANGE_RATE_PAIR_NOT_FOUND);
                 }
@@ -122,7 +123,7 @@ public class ExchangeRateDao {
     }
 
 
-    public ExchangeRate save (String baseCode, String targetCode, double rate) {
+    public ExchangeRate save(String baseCode, String targetCode, BigDecimal rate) {
 
         String sqlQueryByCode = "SELECT * from currencies WHERE code = ?";
         String checkExistSql = "SELECT 1 FROM ExchangeRates WHERE baseCurrencyId = ? AND targetCurrencyId = ?";
@@ -149,7 +150,7 @@ public class ExchangeRateDao {
 
                 insertStmt.setInt(1, baseCurrency.get().getId());
                 insertStmt.setInt(2, targetCurrency.get().getId());
-                insertStmt.setDouble(3, rate);
+                insertStmt.setBigDecimal(3, rate);
                 insertStmt.executeUpdate();
 
                 try (ResultSet generatedKeys = insertStmt.getGeneratedKeys()) {
@@ -167,7 +168,7 @@ public class ExchangeRateDao {
     }
 
 
-        public ExchangeRate update (String baseCode, String targetCode, double rate) {
+        public ExchangeRate update (String baseCode, String targetCode, BigDecimal rate) {
 
             String sqlQueryByCode = "SELECT * from currencies WHERE code = ?";
             String sqlUpdate = "UPDATE exchangeRates SET rate = ? WHERE BaseCurrencyId = ? AND TargetCurrencyId = ?";
@@ -191,7 +192,7 @@ public class ExchangeRateDao {
                         }
                     }
 
-                updateStmt.setDouble(1, rate);
+                updateStmt.setBigDecimal(1, rate);
                 updateStmt.setInt(2, baseCurrency.get().getId());
                 updateStmt.setInt(3, targetCurrency.get().getId());
                 updateStmt.executeUpdate();

@@ -6,7 +6,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
-public class BasicServlet extends HttpServlet  {
+public class BasicServlet extends HttpServlet {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -14,5 +14,4 @@ public class BasicServlet extends HttpServlet  {
         response.setStatus(status);
         objectMapper.writeValue(response.getWriter(), value);
     }
-
 }

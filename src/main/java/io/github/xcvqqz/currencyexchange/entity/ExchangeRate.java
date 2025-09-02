@@ -1,14 +1,16 @@
 package io.github.xcvqqz.currencyexchange.entity;
 
+import java.math.BigDecimal;
+
 public class ExchangeRate {
 
     private int id;
-    private io.github.xcvqqz.currencyexchange.entity.Currency baseCurrency;
+    private Currency baseCurrency;
     private Currency targetCurrency;
-    private double rate;
+    private BigDecimal rate;
 
 
-    public ExchangeRate(int id, Currency baseCurrency, Currency targetCurrency, double rate) {
+    public ExchangeRate(int id, Currency baseCurrency, Currency targetCurrency, BigDecimal rate) {
         this.id = id;
         this.baseCurrency = baseCurrency;
         this.targetCurrency = targetCurrency;
@@ -39,11 +41,11 @@ public class ExchangeRate {
         this.targetCurrency = targetCurrency;
     }
 
-    public double getRate() {
+    public BigDecimal getRate() {
         return rate;
     }
 
-    public void setRate(double rate) {
+    public void setRate(BigDecimal rate) {
         this.rate = rate;
     }
 }

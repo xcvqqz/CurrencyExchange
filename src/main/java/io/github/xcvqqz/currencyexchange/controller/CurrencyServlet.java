@@ -26,13 +26,11 @@ public class CurrencyServlet extends BasicServlet {
 
         String path = request.getPathInfo();
         String code = path.substring(1);
-
         Validator.validate(code);
 
         CurrencyDto currencyDtoResponse = currencyService.findByCode(code);
         doResponse(response, SC_OK, currencyDtoResponse);
     }
-
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
