@@ -1,8 +1,7 @@
 package io.github.xcvqqz.currencyexchange.util;
 
-import io.github.xcvqqz.currencyexchange.dto.CurrencyDto;
-import io.github.xcvqqz.currencyexchange.dto.ExchangeRateDto;
-import io.github.xcvqqz.currencyexchange.dto.ExchangeResponseDto;
+import io.github.xcvqqz.currencyexchange.dto.CurrencyResponseDto;
+import io.github.xcvqqz.currencyexchange.dto.ExchangeRateResponseDto;
 import io.github.xcvqqz.currencyexchange.entity.Currency;
 import io.github.xcvqqz.currencyexchange.entity.ExchangeRate;
 
@@ -11,9 +10,9 @@ public class ModelMapperUtil {
 
     public ModelMapperUtil(){}
 
-    public CurrencyDto convertToDto(Currency currency){
+    public CurrencyResponseDto convertToDto(Currency currency){
 
-        CurrencyDto currencyDto = new CurrencyDto(
+        CurrencyResponseDto currencyDto = new CurrencyResponseDto(
                 currency.getId(),
                 currency.getCode(),
                 currency.getFullName(),
@@ -22,9 +21,9 @@ public class ModelMapperUtil {
         return currencyDto;
     }
 
-    public ExchangeRateDto convertToDto(ExchangeRate exchangeRate){
+    public ExchangeRateResponseDto convertToDto(ExchangeRate exchangeRate){
 
-        ExchangeRateDto exchangeRateDto = new ExchangeRateDto(
+        ExchangeRateResponseDto exchangeRateDto = new ExchangeRateResponseDto(
                 exchangeRate.getId(),
                 exchangeRate.getBaseCurrency(),
                 exchangeRate.getTargetCurrency(),

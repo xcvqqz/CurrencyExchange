@@ -1,10 +1,11 @@
 package io.github.xcvqqz.currencyexchange.service;
 
-import io.github.xcvqqz.currencyexchange.dto.ExchangeRateDto;
+import io.github.xcvqqz.currencyexchange.dto.ExchangeRateResponseDto;
 import io.github.xcvqqz.currencyexchange.dto.ExchangeResponseDto;
 import io.github.xcvqqz.currencyexchange.entity.Currency;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 public class ExchangeService {
 
@@ -17,15 +18,16 @@ public class ExchangeService {
 
 
     public ExchangeResponseDto convert(String from, String to, BigDecimal amount) {
-        return findDirectRate(from, to, amount);
+        return calculateDirectRate(from, to, amount);
+//        return calculateInverseRate(from, to, amount);
     }
 
 
 
     //прямое получение курса
-    private ExchangeResponseDto findDirectRate(String from, String to, BigDecimal amount){
+    private ExchangeResponseDto calculateDirectRate(String from, String to, BigDecimal amount){
 
-       ExchangeRateDto exchangeRateDto = exchangeRateService.getExchangeRatesPair(from,to);
+       ExchangeRateResponseDto exchangeRateDto = exchangeRateService.getExchangeRatesPair(from,to);
        Currency baseCurrency = exchangeRateDto.baseCurrency();
        Currency targetCurrency = exchangeRateDto.targetCurrency();
        BigDecimal rate = exchangeRateDto.rate();
@@ -42,9 +44,23 @@ public class ExchangeService {
 
 
     //получение обратного курса
-//    private ExchangeResponseDto calculateInverseRate(String baseCode, String targetCode){
-//
-//    }
+    private ExchangeResponseDto calculateInverseRate(String from, String to, BigDecimal amount){
+
+        ExchangeRateResponseDto exchangeRateDto = exchangeRateService.getExchangeRatesPair(to,from);
+        Currency baseCurrency = exchangeRateDto.baseCurrency();
+        Currency targetCurrency = exchangeRateDto.targetCurrency();
+
+        BigDecimal rate = exchangeRateDto.rate();
+        BigDecimal reverseRate  = BigDecimal.ONE.divide(rate, 2, RoundingMode.HALF_UP);
+        BigDecimal convertedAmount = amount.multiply(reverseRate).setScale(2, RoundingMode.HALF_UP);
+
+        return new ExchangeResponseDto(
+                baseCurrency,
+                targetCurrency,
+                rate,
+                amount,
+                convertedAmount);
+    }
 
 
     

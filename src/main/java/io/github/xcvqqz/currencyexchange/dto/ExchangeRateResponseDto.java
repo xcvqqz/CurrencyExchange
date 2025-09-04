@@ -4,7 +4,7 @@ import io.github.xcvqqz.currencyexchange.entity.Currency;
 
 import java.math.BigDecimal;
 
-public record ExchangeRateDto(
+public record ExchangeRateResponseDto(
         int id,
         Currency baseCurrency,
         Currency targetCurrency,

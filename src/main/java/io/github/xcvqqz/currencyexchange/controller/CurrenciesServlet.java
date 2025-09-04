@@ -3,7 +3,7 @@ package io.github.xcvqqz.currencyexchange.controller;
 import java.io.*;
 import java.util.List;
 
-import io.github.xcvqqz.currencyexchange.dto.CurrencyDto;
+import io.github.xcvqqz.currencyexchange.dto.CurrencyResponseDto;
 import io.github.xcvqqz.currencyexchange.service.CurrencyService;
 import io.github.xcvqqz.currencyexchange.util.Validator;
 import jakarta.servlet.http.*;
@@ -17,11 +17,10 @@ public class CurrenciesServlet extends BasicServlet {
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-        List<CurrencyDto> currencyDtosResponse = currencyService.findAll();
+        List<CurrencyResponseDto> currencyDtosResponse = currencyService.findAll();
         doResponse(response, SC_OK, currencyDtosResponse);
 
     }
-
 
     @Override
     public  void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -32,8 +31,8 @@ public class CurrenciesServlet extends BasicServlet {
 
         Validator.validate(code, fullName, sign);
 
-        CurrencyDto currencyDtoResponse = currencyService.save(code, fullName, sign);
+        CurrencyResponseDto currencyDtoResponse = currencyService.save(code, fullName, sign);
         doResponse(response, SC_OK, currencyDtoResponse);
-        }
     }
+}
 

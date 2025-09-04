@@ -2,7 +2,7 @@ package io.github.xcvqqz.currencyexchange.controller;
 
 import java.io.*;
 
-import io.github.xcvqqz.currencyexchange.dto.CurrencyDto;
+import io.github.xcvqqz.currencyexchange.dto.CurrencyResponseDto;
 import io.github.xcvqqz.currencyexchange.entity.Currency;
 import io.github.xcvqqz.currencyexchange.service.CurrencyService;
 import io.github.xcvqqz.currencyexchange.util.Validator;
@@ -22,7 +22,7 @@ public class CurrencyServlet extends BasicServlet {
         String code = path.substring(1);
         Validator.validate(code);
 
-        CurrencyDto currencyDtoResponse = currencyService.findByCode(code);
+        CurrencyResponseDto currencyDtoResponse = currencyService.findByCode(code);
         doResponse(response, SC_OK, currencyDtoResponse);
     }
 
@@ -36,7 +36,7 @@ public class CurrencyServlet extends BasicServlet {
 
         Validator.validate(code, fullName, sign);
 
-        CurrencyDto currencyDtoResponse = currencyService.update(new Currency(id, code, fullName, sign));
+        CurrencyResponseDto currencyDtoResponse = currencyService.update(new Currency(id, code, fullName, sign));
         doResponse(response, SC_OK, currencyDtoResponse);
     }
 }

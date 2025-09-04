@@ -1,6 +1,6 @@
 package io.github.xcvqqz.currencyexchange.controller;
 
-import io.github.xcvqqz.currencyexchange.dto.ExchangeRateDto;
+import io.github.xcvqqz.currencyexchange.dto.ExchangeRateResponseDto;
 import io.github.xcvqqz.currencyexchange.service.ExchangeRateService;
 import io.github.xcvqqz.currencyexchange.util.Validator;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,7 +19,7 @@ public class ExchangeRatesServlet extends BasicServlet {
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-        List<ExchangeRateDto> exchangeRateDtosResponse = exchangeRatesService.findAll();
+        List<ExchangeRateResponseDto> exchangeRateDtosResponse = exchangeRatesService.findAll();
         doResponse(response, SC_OK, exchangeRateDtosResponse);
     }
 
@@ -29,12 +29,11 @@ public class ExchangeRatesServlet extends BasicServlet {
 
         String baseCode = request.getParameter("baseCode");
         String targetCode = request.getParameter("targetCode");
-        String rateParam = request.getParameter("rate");
-        BigDecimal rate = new BigDecimal(rateParam);
+        BigDecimal rate = new BigDecimal(request.getParameter("rate"));
+
         Validator.validate(baseCode, targetCode, rate);
 
-
-        ExchangeRateDto exchangeRateDtosResponse = exchangeRatesService.save(baseCode, targetCode, rate);
+        ExchangeRateResponseDto exchangeRateDtosResponse = exchangeRatesService.save(baseCode, targetCode, rate);
         doResponse(response, SC_OK, exchangeRateDtosResponse);
     }
 }

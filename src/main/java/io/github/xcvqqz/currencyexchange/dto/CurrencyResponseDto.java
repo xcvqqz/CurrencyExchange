@@ -1,6 +1,6 @@
 package io.github.xcvqqz.currencyexchange.dto;
 
-public record CurrencyDto(
+public record CurrencyResponseDto(
         int id,
         String code,
         String fullName,

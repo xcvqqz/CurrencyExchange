@@ -1,6 +1,6 @@
 package io.github.xcvqqz.currencyexchange.controller;
 
-import io.github.xcvqqz.currencyexchange.dto.ExchangeRateDto;
+import io.github.xcvqqz.currencyexchange.dto.ExchangeRateResponseDto;
 import io.github.xcvqqz.currencyexchange.service.ExchangeRateService;
 import io.github.xcvqqz.currencyexchange.util.Validator;
 import jakarta.servlet.ServletException;
@@ -37,7 +37,7 @@ public class ExchangeRateServlet extends BasicServlet {
         String targetCode = pathInfo.substring(4);
         Validator.validate(baseCode, targetCode);
 
-        ExchangeRateDto exchangeRateDtoResponse = exchangeRatesService.getExchangeRatesPair(baseCode, targetCode);
+        ExchangeRateResponseDto exchangeRateDtoResponse = exchangeRatesService.getExchangeRatesPair(baseCode, targetCode);
 
         doResponse(response, SC_OK, exchangeRateDtoResponse);
     }
@@ -50,12 +50,11 @@ public class ExchangeRateServlet extends BasicServlet {
 
         String baseCode = path.substring(1, 4).toUpperCase();
         String targetCode = path.substring(4).toUpperCase();
-        String rateParam = request.getReader().readLine().substring(5);
-        BigDecimal rate = new BigDecimal(rateParam);
+        BigDecimal rate = new BigDecimal(request.getReader().readLine().substring(5));
 
         Validator.validate(baseCode, targetCode, rate);
 
-        ExchangeRateDto exchangeRateDtoResponse = exchangeRatesService.update(baseCode, targetCode, rate);
+        ExchangeRateResponseDto exchangeRateDtoResponse = exchangeRatesService.update(baseCode, targetCode, rate);
 
         doResponse(response, SC_OK, exchangeRateDtoResponse);
     }
