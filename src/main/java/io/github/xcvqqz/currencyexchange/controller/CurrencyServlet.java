@@ -1,17 +1,11 @@
 package io.github.xcvqqz.currencyexchange.controller;
 
 import java.io.*;
-import java.sql.SQLException;
-import java.util.Map;
-import java.util.Optional;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.xcvqqz.currencyexchange.dto.CurrencyDto;
 import io.github.xcvqqz.currencyexchange.entity.Currency;
-import io.github.xcvqqz.currencyexchange.dao.CurrencyDao;
 import io.github.xcvqqz.currencyexchange.service.CurrencyService;
 import io.github.xcvqqz.currencyexchange.util.Validator;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.*;
 
 import static jakarta.servlet.http.HttpServletResponse.SC_OK;
