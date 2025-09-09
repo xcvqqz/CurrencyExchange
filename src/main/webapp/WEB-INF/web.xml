@@ -3,6 +3,41 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
          version="6.0">
+    <filter>
+        <filter-name>ContentTypeFilter</filter-name>
+        <filter-class>io.github.xcvqqz.currencyexchange.filter.ContentTypeFilter</filter-class>
+    </filter>
+    <filter>
+        <filter-name>ExceptionHandlingFilter</filter-name>
+        <filter-class>io.github.xcvqqz.currencyexchange.filter.ExceptionHandlingFilter</filter-class>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>ContentTypeFilter</filter-name>
+        <url-pattern>/currency/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>ContentTypeFilter</filter-name>
+        <url-pattern>/currencies</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>ContentTypeFilter</filter-name>
+        <url-pattern>/exchangeRate/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>ContentTypeFilter</filter-name>
+        <url-pattern>/exchangeRates</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>ContentTypeFilter</filter-name>
+        <url-pattern>/exchange</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>ExceptionHandlingFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
     <servlet>
         <servlet-name>CurrenciesServlet</servlet-name>
         <servlet-class>io.github.xcvqqz.currencyexchange.controller.CurrenciesServlet</servlet-class>

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.xcvqqz.currencyexchange.dto.ErrorResponseDto;
 import io.github.xcvqqz.currencyexchange.exception.*;
 import jakarta.servlet.*;
-import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -13,7 +12,6 @@ import java.io.IOException;
 
 import static jakarta.servlet.http.HttpServletResponse.*;
 
-@WebFilter("/*")
 public class ExceptionHandlingFilter implements Filter {
 
     private final ObjectMapper mapper = new ObjectMapper();

@@ -14,7 +14,7 @@ public class ConnectionFactory {
     private static final Properties properties;
     private static final HikariDataSource dataSource;
     private static final HikariConfig config;
-    private static final String DB_PATH_CONFIGURATION = "database/configurations.properties";
+    private static final String DB_PATH_CONFIGURATION = "configurations.properties";
     private static final String DB_ERROR = "Database error: failed to establish connection to the database";
 
     static {
