@@ -4,8 +4,8 @@
          xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
          version="6.0">
     <filter>
-        <filter-name>ContentTypeFilter</filter-name>
-        <filter-class>io.github.xcvqqz.currencyexchange.filter.ContentTypeFilter</filter-class>
+        <filter-name>ContentAndEncodingFilter</filter-name>
+        <filter-class>io.github.xcvqqz.currencyexchange.filter.ContentAndEncodingFilter</filter-class>
     </filter>
     <filter>
         <filter-name>ExceptionHandlingFilter</filter-name>
@@ -13,23 +13,23 @@
     </filter>
 
     <filter-mapping>
-        <filter-name>ContentTypeFilter</filter-name>
+        <filter-name>ContentAndEncodingFilter</filter-name>
         <url-pattern>/currency/*</url-pattern>
     </filter-mapping>
     <filter-mapping>
-        <filter-name>ContentTypeFilter</filter-name>
+        <filter-name>ContentAndEncodingFilter</filter-name>
         <url-pattern>/currencies</url-pattern>
     </filter-mapping>
     <filter-mapping>
-        <filter-name>ContentTypeFilter</filter-name>
+        <filter-name>ContentAndEncodingFilter</filter-name>
         <url-pattern>/exchangeRate/*</url-pattern>
     </filter-mapping>
     <filter-mapping>
-        <filter-name>ContentTypeFilter</filter-name>
+        <filter-name>ContentAndEncodingFilter</filter-name>
         <url-pattern>/exchangeRates</url-pattern>
     </filter-mapping>
     <filter-mapping>
-        <filter-name>ContentTypeFilter</filter-name>
+        <filter-name>ContentAndEncodingFilter</filter-name>
         <url-pattern>/exchange</url-pattern>
     </filter-mapping>
 

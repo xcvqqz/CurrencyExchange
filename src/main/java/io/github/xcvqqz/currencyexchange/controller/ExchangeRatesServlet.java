@@ -27,8 +27,8 @@ public class ExchangeRatesServlet extends BasicServlet {
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-        String baseCode = request.getParameter("baseCode");
-        String targetCode = request.getParameter("targetCode");
+        String baseCode = request.getParameter("baseCurrencyCode");
+        String targetCode = request.getParameter("targetCurrencyCode");
         BigDecimal rate = new BigDecimal(request.getParameter("rate"));
 
         Validator.validate(baseCode, targetCode, rate);

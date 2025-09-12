@@ -42,7 +42,6 @@ public class ExchangeRateServlet extends BasicServlet {
         doResponse(response, SC_OK, exchangeRateDtoResponse);
     }
 
-
     public void doPatch(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         String path = request.getPathInfo();

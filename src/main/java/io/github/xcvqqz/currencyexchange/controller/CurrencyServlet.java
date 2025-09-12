@@ -30,13 +30,13 @@ public class CurrencyServlet extends BasicServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         String code = request.getParameter("code");
-        String fullName = request.getParameter("fullName");
+        String name = request.getParameter("name");
         String sign = request.getParameter("sign");
         int id = Integer.parseInt(request.getParameter("id"));
 
-        Validator.validate(code, fullName, sign);
+//        Validator.validate(code, name, sign);
 
-        CurrencyResponseDto currencyDtoResponse = currencyService.update(new Currency(id, code, fullName, sign));
+        CurrencyResponseDto currencyDtoResponse = currencyService.update(new Currency(id, code, name, sign));
         doResponse(response, SC_OK, currencyDtoResponse);
     }
 }

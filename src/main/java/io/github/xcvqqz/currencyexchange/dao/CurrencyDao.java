@@ -35,8 +35,8 @@ public class CurrencyDao {
             while (rs.next()) {
                 result.add(new Currency(
                         rs.getInt("id"),
+                        rs.getString("name"),
                         rs.getString("code"),
-                        rs.getString("fullName"),
                         rs.getString("sign")
                 ));
             }
@@ -49,7 +49,7 @@ public class CurrencyDao {
     public Optional<Currency> findByCode(String code) {
 
         String sqlQuery = "SELECT * FROM currencies WHERE code = ?";
-        Optional<Currency> result = Optional.empty();
+        Optional<Currency> result;
 
         try (Connection connection = ConnectionFactory.getConnection();
              PreparedStatement stmt = connection.prepareStatement(sqlQuery)) {
@@ -59,8 +59,8 @@ public class CurrencyDao {
                 if (rs.next()) {
                     result = Optional.of(new Currency(
                             rs.getInt("id"),
+                            rs.getString("name"),
                             rs.getString("code"),
-                            rs.getString("fullName"),
                             rs.getString("sign")));
                 } else {
                     throw new CurrencyNotFoundException(DB_ERROR_CURRENCY_NOT_FOUND);
@@ -76,7 +76,7 @@ public class CurrencyDao {
     public Currency update(Currency currency){
 
         String checkExistSql = "SELECT id FROM currencies WHERE code = ? AND id != ?";
-        String sqlQuery = "UPDATE currencies SET code = ?, fullName = ?, sign = ? WHERE id = ?";
+        String sqlQuery = "UPDATE currencies SET code = ?, name = ?, sign = ? WHERE id = ?";
 
         try (Connection connection = ConnectionFactory.getConnection();
              PreparedStatement checkStmt = connection.prepareStatement(checkExistSql);
@@ -91,7 +91,7 @@ public class CurrencyDao {
                 }
             }
             updateStmt.setString(1, currency.getCode());
-            updateStmt.setString(2, currency.getFullName());
+            updateStmt.setString(2, currency.getName());
             updateStmt.setString(3, currency.getSign());
             updateStmt.setInt(4, currency.getId());
 
@@ -102,8 +102,8 @@ public class CurrencyDao {
             }
 
             return new Currency(currency.getId(),
+                    currency.getName(),
                     currency.getCode(),
-                    currency.getFullName(),
                     currency.getSign());
 
         } catch (SQLException e) {
@@ -111,17 +111,17 @@ public class CurrencyDao {
         }
     }
 
-    public Currency save(String code, String fullName, String sign) {
+    public Currency save(String code, String name, String sign) {
 
-        String sqlQuery = "INSERT INTO currencies (code, fullName, sign) VALUES (?, ?, ?)";
-        String checkExistSql = "SELECT 1 FROM currencies WHERE code = ? AND fullName = ? AND sign = ?";
+        String sqlQuery = "INSERT INTO currencies (code, name, sign) VALUES (?, ?, ?)";
+        String checkExistSql = "SELECT 1 FROM currencies WHERE code = ? AND name = ? AND sign = ?";
 
         try (Connection connection = ConnectionFactory.getConnection();
              PreparedStatement checkStmt = connection.prepareStatement(checkExistSql);
              PreparedStatement insertStmt = connection.prepareStatement(sqlQuery,Statement.RETURN_GENERATED_KEYS)) {
 
             checkStmt.setString(1, code);
-            checkStmt.setString(2, fullName);
+            checkStmt.setString(2, name);
             checkStmt.setString(3, sign);
 
             try (ResultSet rs = checkStmt.executeQuery()) {
@@ -131,20 +131,20 @@ public class CurrencyDao {
             }
 
             insertStmt.setString(1, code);
-            insertStmt.setString(2, fullName);
+            insertStmt.setString(2, name);
             insertStmt.setString(3, sign);
             insertStmt.executeUpdate();
 
             try (ResultSet generatedKeys = insertStmt.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
                     int generatedId = generatedKeys.getInt(1);
-                    return new Currency(generatedId, code, fullName, sign);
+                    return new Currency(generatedId, name, code, sign);
                 } else {
                     throw new DataBaseException(DB_ERROR_CREATE_CURRENCY_ONE);
                 }
             }
-    } catch (SQLException e) {
-            throw new DataBaseException(DB_ERROR_CREATE_CURRENCY_TWO + e.getMessage());
+        } catch (SQLException e) {
+            throw new DataBaseException(DB_ERROR_CREATE_CURRENCY_TWO);
         }
     }
 }

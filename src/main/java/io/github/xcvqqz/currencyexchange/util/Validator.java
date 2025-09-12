@@ -27,14 +27,14 @@ public class Validator {
         }
     }
 
-    public static void validate(String code, String fullName, String sign) {
-        code.toUpperCase().trim();
-        if      ((code == null || !code.matches(ISO_4217)) ||
-                (fullName == null || !fullName.matches(FULL_NAME)) ||
-                (sign == null || !sign.matches(SIGN))){
-            throw new ValidationException(String.format(INVALID_CURRENCY_FIELDS_MESSAGE, code, fullName, sign));
-        }
-    }
+//    public static void validate(String code, String name, String sign) {
+//        code.toUpperCase().trim();
+//        if      ((code == null || !code.matches(ISO_4217)) ||
+//                (name == null || !name.matches(FULL_NAME)) ||
+//                (sign == null || !sign.matches(SIGN))){
+//            throw new ValidationException(String.format(INVALID_CURRENCY_FIELDS_MESSAGE, code, name, sign));
+//        }
+//    }
 
     public static void validate(String baseCode, String targetCode){
         baseCode.toUpperCase().trim();
@@ -56,9 +56,9 @@ public class Validator {
     }
 
     public static void pathInfoValidate(String pathInfo) {
-            if(pathInfo == null || pathInfo.length() != 7){
-                throw new ValidationException(String.format(INVALID_PATH_INFO_MESSAGE, pathInfo));
-            }
+        if(pathInfo == null || pathInfo.length() != 7){
+            throw new ValidationException(String.format(INVALID_PATH_INFO_MESSAGE, pathInfo));
+        }
     }
 
 }

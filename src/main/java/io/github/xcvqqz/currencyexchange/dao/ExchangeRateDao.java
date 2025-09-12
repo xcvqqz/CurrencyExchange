@@ -29,12 +29,12 @@ public class ExchangeRateDao {
         List<ExchangeRate> result = new ArrayList<>();
         String sql = "SELECT " +
                 "er.id, " +
-                "base.id AS IdBaseCurrency, " + "base.code AS CodeBaseCurrency, " + "base.fullName AS FullNameBaseCurrency, " + "base.sign AS SignBaseCurrency, " +
-                "target.id AS IdTargetCurrency, " + "target.code AS CodeTargetCurrency, " + "target.fullName AS FullNameTargetCurrency, " + "target.sign AS SignTargetCurrency, " +
-                "er.Rate " +
-                "FROM ExchangeRates er " +
-                "JOIN currencies base ON er.BaseCurrencyId = base.id " +
-                "JOIN currencies target ON er.TargetCurrencyId = target.id;";
+                "base.id AS IdBaseCurrency, " + "base.code AS CodeBaseCurrency, " + "base.name AS NameBaseCurrency, " + "base.sign AS SignBaseCurrency, " +
+                "target.id AS IdTargetCurrency, " + "target.code AS CodeTargetCurrency, " + "target.name AS NameTargetCurrency, " + "target.sign AS SignTargetCurrency, " +
+                "er.rate " +
+                "FROM exchange_rates er " +
+                "JOIN currencies base ON er.baseCurrencyId = base.id " +
+                "JOIN currencies target ON er.targetCurrencyId = target.id;";
 
         try (Connection connection = ConnectionFactory.getConnection();
              Statement stmt = connection.createStatement();
@@ -43,21 +43,21 @@ public class ExchangeRateDao {
             while (rs.next()) {
                 Currency BaseCurrency = new Currency(
                         rs.getInt("IdBaseCurrency"),
+                        rs.getString("NameBaseCurrency"),
                         rs.getString("CodeBaseCurrency"),
-                        rs.getString("FullNameBaseCurrency"),
                         rs.getString("SignBaseCurrency"));
 
                 Currency TargetCurrency = new Currency(
                         rs.getInt("IdTargetCurrency"),
+                        rs.getString("NameTargetCurrency"),
                         rs.getString("CodeTargetCurrency"),
-                        rs.getString("FullNameTargetCurrency"),
                         rs.getString("SignTargetCurrency"));
 
                 result.add(new ExchangeRate(
                         rs.getInt("id"),
                         BaseCurrency,
                         TargetCurrency,
-                        rs.getBigDecimal("Rate")));
+                        rs.getBigDecimal("rate")));
             }
         } catch (SQLException e) {
             throw new DataBaseException(DB_ERROR_GET_ALL_EXCHANGE_RATES);
@@ -79,12 +79,12 @@ public class ExchangeRateDao {
 
         String sql = "SELECT " +
                 "er.id, " +
-                "base.id AS IdBaseCurrency, " + "base.code AS CodeBaseCurrency, " + "base.fullName AS FullNameBaseCurrency, " + "base.sign AS SignBaseCurrency, " +
-                "target.id AS IdTargetCurrency, " + "target.code AS CodeTargetCurrency, " + "target.fullName AS FullNameTargetCurrency, " + "target.sign AS SignTargetCurrency, " +
-                "er.Rate " +
-                "FROM ExchangeRates er " +
-                "JOIN currencies base ON er.BaseCurrencyId = base.id " +
-                "JOIN currencies target ON er.TargetCurrencyId = target.id " +
+                "base.id AS IdBaseCurrency, " + "base.code AS CodeBaseCurrency, " + "base.name AS NameBaseCurrency, " + "base.sign AS SignBaseCurrency, " +
+                "target.id AS IdTargetCurrency, " + "target.code AS CodeTargetCurrency, " + "target.name AS NameTargetCurrency, " + "target.sign AS SignTargetCurrency, " +
+                "er.rate " +
+                "FROM exchange_rates er " +
+                "JOIN currencies base ON er.baseCurrencyId = base.id " +
+                "JOIN currencies target ON er.targetCurrencyId = target.id " +
                 "WHERE CodeBaseCurrency = ? AND CodeTargetCurrency = ?";
 
 
@@ -97,21 +97,21 @@ public class ExchangeRateDao {
                 if (rs.next()) {
                     baseCurrency = new Currency(
                             rs.getInt("IdBaseCurrency"),
+                            rs.getString("NameBaseCurrency"),
                             rs.getString("CodeBaseCurrency"),
-                            rs.getString("FullNameBaseCurrency"),
                             rs.getString("SignBaseCurrency"));
 
                     targetCurrency = new Currency(
                             rs.getInt("IdTargetCurrency"),
+                            rs.getString("NameTargetCurrency"),
                             rs.getString("CodeTargetCurrency"),
-                            rs.getString("FullNameTargetCurrency"),
                             rs.getString("SignTargetCurrency"));
 
-                  result = Optional.of(new ExchangeRate(
+                    result = Optional.of(new ExchangeRate(
                             rs.getInt("id"),
                             baseCurrency,
                             targetCurrency,
-                            rs.getBigDecimal("Rate")));
+                            rs.getBigDecimal("rate")));
                 } else {
                     throw new ExchangeRateNotFoundException(EXCHANGE_RATE_PAIR_NOT_FOUND);
                 }
@@ -126,8 +126,8 @@ public class ExchangeRateDao {
     public ExchangeRate save(String baseCode, String targetCode, BigDecimal rate) {
 
         String sqlQueryByCode = "SELECT * from currencies WHERE code = ?";
-        String checkExistSql = "SELECT 1 FROM ExchangeRates WHERE baseCurrencyId = ? AND targetCurrencyId = ?";
-        String sqlExecuteUpdate = "INSERT INTO ExchangeRates (baseCurrencyId, targetCurrencyId, rate) VALUES (?, ?, ?)";
+        String checkExistSql = "SELECT 1 FROM exchange_rates WHERE baseCurrencyId = ? AND targetCurrencyId = ?";
+        String sqlExecuteUpdate = "INSERT INTO exchange_rates (baseCurrencyId, targetCurrencyId, rate) VALUES (?, ?, ?)";
         Optional<Currency> baseCurrency;
         Optional<Currency> targetCurrency;
 
@@ -168,29 +168,29 @@ public class ExchangeRateDao {
     }
 
 
-        public ExchangeRate update (String baseCode, String targetCode, BigDecimal rate) {
+    public ExchangeRate update (String baseCode, String targetCode, BigDecimal rate) {
 
-            String sqlQueryByCode = "SELECT * from currencies WHERE code = ?";
-            String sqlUpdate = "UPDATE exchangeRates SET rate = ? WHERE BaseCurrencyId = ? AND TargetCurrencyId = ?";
-            String checkExistSql = "SELECT 1 FROM ExchangeRates WHERE baseCurrencyId = ? AND targetCurrencyId = ?";
-            Optional<Currency> baseCurrency;
-            Optional<Currency> targetCurrency;
+        String sqlQueryByCode = "SELECT * from currencies WHERE code = ?";
+        String sqlUpdate = "UPDATE exchange_rates SET rate = ? WHERE baseCurrencyId = ? AND targetCurrencyId = ?";
+        String checkExistSql = "SELECT 1 FROM exchange_rates WHERE baseCurrencyId = ? AND targetCurrencyId = ?";
+        Optional<Currency> baseCurrency;
+        Optional<Currency> targetCurrency;
 
-            try (Connection connection = ConnectionFactory.getConnection()){
+        try (Connection connection = ConnectionFactory.getConnection()){
 
-                baseCurrency = findCurrency(connection, baseCode, sqlQueryByCode);
-                targetCurrency = findCurrency(connection, targetCode, sqlQueryByCode);
+            baseCurrency = findCurrency(connection, baseCode, sqlQueryByCode);
+            targetCurrency = findCurrency(connection, targetCode, sqlQueryByCode);
 
-                try (PreparedStatement checkStmt = connection.prepareStatement(checkExistSql);
-                     PreparedStatement updateStmt = connection.prepareStatement(sqlUpdate)){
+            try (PreparedStatement checkStmt = connection.prepareStatement(checkExistSql);
+                 PreparedStatement updateStmt = connection.prepareStatement(sqlUpdate)){
 
-                    checkStmt.setInt(1, baseCurrency.get().getId());
-                    checkStmt.setInt(2, targetCurrency.get().getId());
-                    try (ResultSet rs = checkStmt.executeQuery()) {
-                        if (!rs.next()) {
-                            throw new ExchangeRateNotFoundException(EXCHANGE_RATE_PAIR_NOT_FOUND_FOR_UPDATE);
-                        }
+                checkStmt.setInt(1, baseCurrency.get().getId());
+                checkStmt.setInt(2, targetCurrency.get().getId());
+                try (ResultSet rs = checkStmt.executeQuery()) {
+                    if (!rs.next()) {
+                        throw new ExchangeRateNotFoundException(EXCHANGE_RATE_PAIR_NOT_FOUND_FOR_UPDATE);
                     }
+                }
 
                 updateStmt.setBigDecimal(1, rate);
                 updateStmt.setInt(2, baseCurrency.get().getId());
@@ -198,11 +198,11 @@ public class ExchangeRateDao {
                 updateStmt.executeUpdate();
             }
         } catch (SQLException e) {
-                throw new DataBaseException(DB_ERROR_UPDATE_EXCHANGE_RATE);
-            }
-            return new ExchangeRate(0, baseCurrency.orElse(null),
-                    targetCurrency.orElse(null), rate);
+            throw new DataBaseException(DB_ERROR_UPDATE_EXCHANGE_RATE);
         }
+        return new ExchangeRate(0, baseCurrency.orElse(null),
+                targetCurrency.orElse(null), rate);
+    }
 
     private static Optional<Currency> findCurrency (Connection connection, String code, String sqlQuery) throws SQLException {
 
@@ -213,8 +213,8 @@ public class ExchangeRateDao {
                 if (rs.next()) {
                     result = Optional.of(new Currency(
                             rs.getInt("id"),
+                            rs.getString("name"),
                             rs.getString("code"),
-                            rs.getString("fullName"),
                             rs.getString("sign")
                     ));
                 }
@@ -223,6 +223,10 @@ public class ExchangeRateDao {
         return result;
     }
 }
+
+
+
+
 
 
 

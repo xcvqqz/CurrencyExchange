@@ -14,8 +14,8 @@ public class ModelMapperUtil {
 
         CurrencyResponseDto currencyDto = new CurrencyResponseDto(
                 currency.getId(),
+                currency.getName(),
                 currency.getCode(),
-                currency.getFullName(),
                 currency.getSign());
 
         return currencyDto;

@@ -26,12 +26,12 @@ public class CurrenciesServlet extends BasicServlet {
     public  void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         String code = request.getParameter("code");
-        String fullName = request.getParameter("fullName");
+        String name = request.getParameter("name");
         String sign = request.getParameter("sign");
 
-        Validator.validate(code, fullName, sign);
+//        Validator.validate(code, name, sign);
 
-        CurrencyResponseDto currencyDtoResponse = currencyService.save(code, fullName, sign);
+        CurrencyResponseDto currencyDtoResponse = currencyService.save(code, name, sign);
         doResponse(response, SC_OK, currencyDtoResponse);
     }
 }

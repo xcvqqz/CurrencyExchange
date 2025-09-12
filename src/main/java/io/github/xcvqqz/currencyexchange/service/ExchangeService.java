@@ -115,8 +115,8 @@ public class ExchangeService {
         BigDecimal exchangeRateUsdToTo;
 
         try {
-       exchangeRateFromToUsd  = getRate(USD, from);
-       exchangeRateUsdToTo  = getRate(USD, to);}
+            exchangeRateFromToUsd  = getRate(USD, from);
+            exchangeRateUsdToTo  = getRate(USD, to);}
         catch (Exception e) {
             return false;
         }
