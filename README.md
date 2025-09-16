@@ -1,4 +1,4 @@
-![сайт ExchangeService.PNG](../../../../%D1%81%D0%B0%D0%B9%D1%82%20ExchangeService.PNG)
+![screenshot.PNG](screenshots/screenshot.PNG)
 ---
 Currency Exchange Service
 ---
