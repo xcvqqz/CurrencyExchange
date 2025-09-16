@@ -1,7 +1,8 @@
 package io.github.xcvqqz.currencyexchange.controller;
 
-import io.github.xcvqqz.currencyexchange.dto.ExchangeRateResponseDto;
-import io.github.xcvqqz.currencyexchange.service.ExchangeRateService;
+import io.github.xcvqqz.currencyexchange.dto.ExchangeRateRequestDTO;
+import io.github.xcvqqz.currencyexchange.dto.ExchangeRateResponseDTO;
+import io.github.xcvqqz.currencyexchange.entity.ExchangeRate;
 import io.github.xcvqqz.currencyexchange.util.Validator;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -14,15 +15,12 @@ import static jakarta.servlet.http.HttpServletResponse.SC_OK;
 
 public class ExchangeRatesServlet extends BasicServlet {
 
-    private final ExchangeRateService exchangeRatesService = new ExchangeRateService();
-
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-        List<ExchangeRateResponseDto> exchangeRateDtosResponse = exchangeRatesService.findAll();
-        doResponse(response, SC_OK, exchangeRateDtosResponse);
+        List<ExchangeRateResponseDTO> exchangeRateDtoResponse = exchangeRatesService.findAll();
+        doResponse(response, SC_OK, exchangeRateDtoResponse);
     }
-
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -33,7 +31,10 @@ public class ExchangeRatesServlet extends BasicServlet {
 
         Validator.validate(baseCode, targetCode, rate);
 
-        ExchangeRateResponseDto exchangeRateDtosResponse = exchangeRatesService.save(baseCode, targetCode, rate);
-        doResponse(response, SC_OK, exchangeRateDtosResponse);
+        ExchangeRateRequestDTO exchangeRateRequestDto = new ExchangeRateRequestDTO(baseCode, targetCode, rate);
+        ExchangeRate exchangeRate = exchangeRateMapper.convertToExchangeRate(exchangeRateRequestDto);
+        ExchangeRateResponseDTO exchangeRateDtoResponse = exchangeRateMapper.convertToDto(exchangeRatesService.save(exchangeRate));
+
+        doResponse(response, SC_OK, exchangeRateDtoResponse);
     }
 }

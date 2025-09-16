@@ -1,42 +1,41 @@
 package io.github.xcvqqz.currencyexchange.service;
 
-import io.github.xcvqqz.currencyexchange.dao.ExchangeRateDao;
-import io.github.xcvqqz.currencyexchange.dto.ExchangeRateResponseDto;
+import io.github.xcvqqz.currencyexchange.dao.CurrencyDAO;
+import io.github.xcvqqz.currencyexchange.dao.ExchangeRateDAO;
+import io.github.xcvqqz.currencyexchange.dto.ExchangeRateResponseDTO;
 import io.github.xcvqqz.currencyexchange.entity.ExchangeRate;
-import io.github.xcvqqz.currencyexchange.util.ModelMapperUtil;
+import io.github.xcvqqz.currencyexchange.util.mapper.ExchangeRateMapper;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class ExchangeRateService {
 
-    private ExchangeRateDao exchangeRatesDao;
-    private ModelMapperUtil modelMapper;
+    private ExchangeRateDAO exchangeRatesDao;
+    private ExchangeRateMapper exchangeRateMapper;
 
-    public ExchangeRateService(){
-        exchangeRatesDao = new ExchangeRateDao();
-        modelMapper = new ModelMapperUtil();
+    public ExchangeRateService() {
+        exchangeRatesDao = new ExchangeRateDAO();
+        exchangeRateMapper = new ExchangeRateMapper();
     }
 
-    public List<ExchangeRateResponseDto> findAll()  {
+    public List<ExchangeRateResponseDTO> findAll() {
         List<ExchangeRate> exchangeRates = exchangeRatesDao.findAll();
 
         return exchangeRates.stream()
-                .map(modelMapper::convertToDto)
+                .map(exchangeRateMapper::convertToDto)
                 .collect(Collectors.toList());
     }
 
-    public ExchangeRateResponseDto getExchangeRatesPair(String baseCode, String targetCode)  {
-        ExchangeRate exchangeRate = exchangeRatesDao.getExchangeRatePair(baseCode, targetCode).orElseThrow();
-        return modelMapper.convertToDto(exchangeRate);
+    public ExchangeRate getExchangeRatesPair(String baseCode, String targetCode) {
+        return exchangeRatesDao.getExchangeRatePair(baseCode, targetCode).orElseThrow();
     }
 
-    public ExchangeRateResponseDto save(String baseCode, String targetCode, BigDecimal rate) {
-        return modelMapper.convertToDto(exchangeRatesDao.save(baseCode, targetCode, rate));
+    public ExchangeRate save(ExchangeRate exchangeRate) {
+        return exchangeRatesDao.save(exchangeRate);
     }
 
-    public ExchangeRateResponseDto update(String baseCode, String targetCode, BigDecimal rate)  {
-        return modelMapper.convertToDto(exchangeRatesDao.update(baseCode, targetCode, rate));
+    public ExchangeRate update(ExchangeRate exchangeRate) {
+        return exchangeRatesDao.update(exchangeRate);
     }
 }

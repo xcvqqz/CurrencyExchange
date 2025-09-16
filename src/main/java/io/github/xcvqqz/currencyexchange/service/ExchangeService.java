@@ -1,13 +1,13 @@
 package io.github.xcvqqz.currencyexchange.service;
 
-import io.github.xcvqqz.currencyexchange.dto.ExchangeRateResponseDto;
-import io.github.xcvqqz.currencyexchange.dto.ExchangeResponseDto;
+import io.github.xcvqqz.currencyexchange.dto.ExchangeRequestDTO;
+import io.github.xcvqqz.currencyexchange.dto.ExchangeResponseDTO;
 import io.github.xcvqqz.currencyexchange.entity.Currency;
+import io.github.xcvqqz.currencyexchange.entity.ExchangeRate;
 import io.github.xcvqqz.currencyexchange.exception.CurrencyNotFoundException;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-
 
 public class ExchangeService {
     private final ExchangeRateService exchangeRateService;
@@ -20,7 +20,12 @@ public class ExchangeService {
         this.exchangeRateService = new ExchangeRateService();
     }
 
-    public ExchangeResponseDto convert(String from, String to, BigDecimal amount) {
+    public ExchangeResponseDTO convert(ExchangeRequestDTO exchangeRequestDTO) {
+
+        String from = exchangeRequestDTO.from();
+        String to = exchangeRequestDTO.to();
+        BigDecimal amount = exchangeRequestDTO.amount();
+
         ConversionType conversionType = determineConversionType(from, to);
 
         return switch (conversionType) {
@@ -49,34 +54,34 @@ public class ExchangeService {
         return ConversionType.NOT_AVAILABLE;
     }
 
-    private ExchangeResponseDto convertDirect(String from, String to, BigDecimal amount) {
+    private ExchangeResponseDTO convertDirect(String from, String to, BigDecimal amount) {
         BigDecimal rate = getRate(from, to);
         BigDecimal convertedAmount = calculateDirect(amount, rate);
-        ExchangeRateResponseDto rateDto = getExchangeRatePair(from, to);
+        ExchangeRate exchangeRate = getExchangeRatePair(from, to);
 
-        return createResponseDto(rateDto.baseCurrency(), rateDto.targetCurrency(),
-                rate, amount, convertedAmount);
+        return createResponseDto(exchangeRate.getBaseCurrency(), exchangeRate.getTargetCurrency(),
+                exchangeRate.getRate(), amount, convertedAmount);
     }
 
-    private ExchangeResponseDto convertInverse(String from, String to, BigDecimal amount) {
+    private ExchangeResponseDTO convertInverse(String from, String to, BigDecimal amount) {
         BigDecimal inverseRate = getRate(to, from);
         BigDecimal rate = BigDecimal.ONE.divide(inverseRate, AMOUNT_SCALE, ROUNDING_MODE);
         BigDecimal convertedAmount = calculateDirect(amount, rate);
-        ExchangeRateResponseDto rateDto = getExchangeRatePair(to, from);
+        ExchangeRate exchangeRate = getExchangeRatePair(to, from);
 
-        return createResponseDto(rateDto.targetCurrency(), rateDto.baseCurrency(),
+        return createResponseDto(exchangeRate.getTargetCurrency(), exchangeRate.getBaseCurrency(),
                 rate, amount, convertedAmount);
     }
 
-    private ExchangeResponseDto convertCross(String from, String to, BigDecimal amount) {
+    private ExchangeResponseDTO convertCross(String from, String to, BigDecimal amount) {
         BigDecimal fromToUsdRate = getRate(USD, from);
         BigDecimal usdToToRate = getRate(USD, to);
         BigDecimal rate = usdToToRate.divide(fromToUsdRate, AMOUNT_SCALE, ROUNDING_MODE);
 
         BigDecimal convertedAmount = calculateDirect(amount, rate);
 
-        Currency baseCurrency = getExchangeRatePair(USD, from).targetCurrency();
-        Currency targetCurrency = getExchangeRatePair(USD, to).targetCurrency();
+        Currency baseCurrency = getExchangeRatePair(USD, from).getTargetCurrency();
+        Currency targetCurrency = getExchangeRatePair(USD, to).getTargetCurrency();
 
         return createResponseDto(baseCurrency, targetCurrency, rate, amount, convertedAmount);
     }
@@ -124,21 +129,20 @@ public class ExchangeService {
     }
 
     private BigDecimal getRate(String from, String to) {
-        return exchangeRateService.getExchangeRatesPair(from, to).rate();
+        return exchangeRateService.getExchangeRatesPair(from, to).getRate();
     }
 
-    private ExchangeRateResponseDto getExchangeRatePair(String from, String to) {
+    private ExchangeRate getExchangeRatePair(String from, String to) {
         return exchangeRateService.getExchangeRatesPair(from, to);
     }
 
-    private ExchangeResponseDto createResponseDto(Currency base, Currency target,
+    private ExchangeResponseDTO createResponseDto(Currency base, Currency target,
                                                   BigDecimal rate, BigDecimal amount,
                                                   BigDecimal convertedAmount) {
-        return new ExchangeResponseDto(base, target, rate, amount, convertedAmount);
+        return new ExchangeResponseDTO(base, target, rate, amount, convertedAmount);
     }
 
     private enum ConversionType {
         DIRECT, INVERSE, CROSS, NOT_AVAILABLE
     }
-
 }

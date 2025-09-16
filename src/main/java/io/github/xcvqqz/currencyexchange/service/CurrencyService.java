@@ -1,42 +1,40 @@
 package io.github.xcvqqz.currencyexchange.service;
 
-
-import io.github.xcvqqz.currencyexchange.dto.CurrencyResponseDto;
+import io.github.xcvqqz.currencyexchange.dto.CurrencyResponseDTO;
 import io.github.xcvqqz.currencyexchange.entity.Currency;
-import io.github.xcvqqz.currencyexchange.dao.CurrencyDao;
-import io.github.xcvqqz.currencyexchange.util.ModelMapperUtil;
+import io.github.xcvqqz.currencyexchange.dao.CurrencyDAO;
+import io.github.xcvqqz.currencyexchange.util.mapper.CurrencyMapper;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class CurrencyService {
 
-    private ModelMapperUtil modelMapper;
-    private CurrencyDao currencyDao;
+    private CurrencyDAO currencyDao;
+    private CurrencyMapper currencyMapper;
 
     public CurrencyService (){
-        modelMapper = new ModelMapperUtil();
-        currencyDao = new CurrencyDao();
+        currencyMapper = new CurrencyMapper();
+        currencyDao = new CurrencyDAO();
     }
 
-    public List<CurrencyResponseDto> findAll() {
+    public List<CurrencyResponseDTO> findAll() {
         List<Currency> currencies = currencyDao.findAll();
 
         return currencies.stream()
-                .map(modelMapper::convertToDto)
+                .map(currencyMapper::convertToDto)
                 .collect(Collectors.toList());
     }
 
-    public CurrencyResponseDto findByCode(String code) {
-        Currency currency = currencyDao.findByCode(code).orElseThrow();
-        return modelMapper.convertToDto(currency);
+    public Currency findByCode(String code) {
+        return currencyDao.findByCode(code).orElseThrow();
     }
 
-    public CurrencyResponseDto update(Currency currency) {
-        return modelMapper.convertToDto(currencyDao.update(currency));
+    public Currency update(Currency currency) {
+        return currencyDao.update(currency);
     }
 
-    public CurrencyResponseDto save(String code, String fullName, String sign) {
-        return modelMapper.convertToDto(currencyDao.save(code, fullName, sign));
+    public Currency save(String name, String code, String sign) {
+        return currencyDao.save(name, code, sign);
     }
 }

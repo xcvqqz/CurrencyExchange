@@ -1,7 +1,7 @@
 package io.github.xcvqqz.currencyexchange.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.xcvqqz.currencyexchange.dto.ErrorResponseDto;
+import io.github.xcvqqz.currencyexchange.dto.ErrorResponseDTO;
 import io.github.xcvqqz.currencyexchange.exception.*;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
@@ -43,7 +43,7 @@ public class ExceptionHandlingFilter implements Filter {
 
     private void sendError(HttpServletResponse response, Exception e, int status) throws IOException {
         response.setStatus(status);
-        ErrorResponseDto errorResponseDto = new ErrorResponseDto(e.getMessage());
+        ErrorResponseDTO errorResponseDto = new ErrorResponseDTO(e.getMessage());
         response.getWriter().write(mapper.writeValueAsString(errorResponseDto));
     }
 }
